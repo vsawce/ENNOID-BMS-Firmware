@@ -15,7 +15,20 @@ History
 *.LOG
 *viewstate
 *.htm
-asccprj.scc
 *.PrjPCBStructure
 *.wmf
-Project\ Outputs*
+*.uvoptx
+*.uvprojx
+*.dionn
+*.ini
+*.lst
+*.axf
+*.hex
+*.dep
+*.map
+*.lnp
+*.sct
+*.dbgconf
+Modules/
+Drivers/SWDrivers/Src/driverSWLTC6804.c
+Drivers/SWDrivers/Inc/driverSWLTC6804.h
