@@ -43,14 +43,13 @@
 
 #define VoutSense_Pin GPIO_PIN_1
 #define VoutSense_GPIO_Port GPIOA
+//define ChargerSense_Pin GPIO_PIN_2
+//define ChargerSense_GPIO_Port GPIOA
 #define BOOTLOADER_TX_Pin GPIO_PIN_2
 #define BOOTLOADER_TX_GPIO_Port GPIOA
 #define BOOTLOADER_RX_Pin GPIO_PIN_3
 #define BOOTLOADER_RX_GPIO_Port GPIOA
-#define LTC6803_CS_Pin GPIO_PIN_4
-#define LTC6803_CS_GPIO_Port GPIOA
-//#define LTC6804_CS_Pin GPIO_PIN_8
-#define LTC6804_CS_Pin GPIO_PIN_4 // For ENNOID hardware only otherwise PIN_8
+#define LTC6804_CS_Pin GPIO_PIN_4 
 #define LTC6804_CS_GPIO_Port GPIOA
 #define LTC_SCK_Pin GPIO_PIN_5
 #define LTC_SCK_GPIO_Port GPIOA
@@ -62,8 +61,6 @@
 #define ChargeEnable_GPIO_Port GPIOB
 #define StatusLED_Pin GPIO_PIN_1
 #define StatusLED_GPIO_Port GPIOB
-#define SwitchEnable_Pin GPIO_PIN_2
-#define SwitchEnable_GPIO_Port GPIOB
 #define DischargeEnable_Pin GPIO_PIN_10
 #define DischargeEnable_GPIO_Port GPIOB
 #define PreChargeEnable_Pin GPIO_PIN_11

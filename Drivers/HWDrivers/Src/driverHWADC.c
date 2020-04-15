@@ -88,7 +88,7 @@ bool driverHWADCGetLoadVoltage(float *loCurrentLoadVoltage, float offset, float 
 	return false;
 };
 /*
-bool driverHWADCGetChargeVoltage(float *loCurrentChargeVoltage, float offset, float scalar) {
+bool driverHWADCGetChargerVoltage(float *chargerVoltage, float offset, float scalar) {
 	uint32_t driverHWADCAverageSum = 0;
 	uint8_t	driverHWADCAverageCount = 0;
 	
@@ -103,7 +103,7 @@ bool driverHWADCGetChargeVoltage(float *loCurrentChargeVoltage, float offset, fl
 	};
 	
 	uint16_t temp = driverHWADCAverageSum/NoOfAverages;
-	*loCurrentChargeVoltage = temp*(3.3f/4096*scalar)+offset;
+	*chargerVoltage = temp*(3.3f/4096*scalar)+offset;
 
 	return false;
 };
