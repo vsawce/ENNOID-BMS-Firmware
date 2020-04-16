@@ -107,7 +107,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			
 			libBufferAppend_uint8(modCommandsSendBuffer, 0, &ind); // Future faultstate
 		
-			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 		
 			break;
@@ -123,7 +123,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellVoltage, 1e3, &ind);          // Individual cells
 			}
 		
-			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_GET_BMS_AUX:
@@ -135,7 +135,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->auxVoltagesIndividual[auxPointer].auxVoltage, 1e1, &ind);          // Individual aux
 			}
 		
-			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_SET_MCCONF:
