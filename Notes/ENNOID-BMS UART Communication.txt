@@ -10,7 +10,7 @@
 		// One Start byte (value 2 for short packets and 3 for long packets)
 		// One or two bytes specifying the packet length (One if packet payload is smaller or equal to 256 byte, two bytes otherwise and up to 1024 bytes)
 		// The payload of the packet (first byte in the payload is the COMM_PACKET_ID)
-		// Two bytes with a CRC checksum on the payload
+		// Two bytes with a CRC checksum done on the payload
 		// One stop byte (value = 3)
 		
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
@@ -19,7 +19,7 @@
 	// Example message in decimal sent over UART from display to get the data COMM_GET_VALUES = 4:
 		
 		// | Start byte | Packet lenght | Payload[0]| CRC[0] | CRC[1] | Stop Byte | 	//
-		// |	2		|		2		|	   4	 |   	 30423	   |	 3     |	//	
+		// |	2		|		1		|	   4	|   	 30423	  |	 	3     |		//	
 		
 		
 	//Response from the BMS will be something like this:
