@@ -89,7 +89,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellHardOverVoltage												     = 4.20f;										// Worst case X.XXV as highest cell voltage
 	configLocation->cellLCSoftUnderVoltage											   = 2.70f;										// Lowest cell voltage X.XXV.
 	configLocation->cellSoftOverVoltage												     = 4.10f;										// Normal highest cell voltage X.XXV.
-	configLocation->cellBalanceDifferenceThreshold                 = 0.01f;										// Start balancing @ XmV difference, stop if below.
+	configLocation->cellBalanceDifferenceThreshold                 = 0.005f;										// Start balancing @ XmV difference, stop if below.
 	configLocation->cellBalanceStart													     = 4.0f;										// Start balancing above X.XXV.
 	configLocation->cellThrottleUpperStart										     = 0.03f;										// Upper range of cell voltage for charge throttling.
 	configLocation->cellThrottleLowerStart										     = 0.20f;									  // Lower range of cell voltage for discharge throttling.
@@ -118,7 +118,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->hysteresisCharge													     = 0.01f;										// Highest cell should lower XXmV before charger is re enabled.
 	configLocation->timeoutChargeCompleted										     = 30*60*1000;							// Wait for XX minutes before setting charge state to charged.
 	configLocation->timeoutChargingCompletedMinimalMismatch 	     = 6*1000;									// If cell mismatch is under threshold and (charging is not allowed) wait this delay time to set "charged" state.
-	configLocation->maxMismatchThreshold											     = 0.020f;									// If mismatch is under this threshold for timeoutChargingCompletedMinimalMismatch determin fully charged.
+	configLocation->maxMismatchThreshold											     = 0.010f;									// If mismatch is under this threshold for timeoutChargingCompletedMinimalMismatch determin fully charged.
 	configLocation->chargerEnabledThreshold										     = 0.5f;										// If charge current > X.XA stay in charging mode and dont power off.
 	configLocation->timeoutChargerDisconnected								     = 2000;										// Wait for X seconds to respond to charger disconnect.
 	configLocation->minimalPrechargePercentage								     = 0.60f;										// output should be at a minimal of 80% of input voltage.
@@ -198,7 +198,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->voltageLCFactor	                               = 50.00f;                   // Pack voltage factor Master-HV: 125, Master-LV: 3.5
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
 	configLocation->loadVoltageFactor	                             = 200.0f;                   // Load voltage factor Master-HV: 135, Master-LV: 50
-	configLocation->loadVoltageOffset                              = 0.0f;                    // Load voltage offset
+	configLocation->loadVoltageOffset                              = 11.0f;                    // Load voltage offset
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.
@@ -209,7 +209,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->hysteresisCharge													     = 0.01f;										// Highest cell should lower XXmV before charger is re enabled.
 	configLocation->timeoutChargeCompleted										     = 30*60*1000;							// Wait for XX minutes before setting charge state to charged.
 	configLocation->timeoutChargingCompletedMinimalMismatch 	     = 6*1000;									// If cell mismatch is under threshold and (charging is not allowed) wait this delay time to set "charged" state.
-	configLocation->maxMismatchThreshold											     = 0.020f;									// If mismatch is under this threshold for timeoutChargingCompletedMinimalMismatch determin fully charged.
+	configLocation->maxMismatchThreshold											     = 0.010f;									// If mismatch is under this threshold for timeoutChargingCompletedMinimalMismatch determin fully charged.
 	configLocation->chargerEnabledThreshold										     = 0.5f;										// If charge current > X.XA stay in charging mode and dont power off.
 	configLocation->timeoutChargerDisconnected								     = 2000;										// Wait for X seconds to respond to charger disconnect.
 	configLocation->minimalPrechargePercentage								     = 0.80f;										// output should be at a minimal of 80% of input voltage.
