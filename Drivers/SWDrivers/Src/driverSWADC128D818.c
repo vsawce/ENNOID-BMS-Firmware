@@ -23,27 +23,27 @@ void driverSWADC128D818Init(void){
 		}
 	}
 	
-	uint8_t configBytes[] = {0x00,0x08};																															// Configuration register -> disable ADC conversion and reset registers
+	uint8_t configBytes[] = {0x00,0x08};		//configuration register, value = 0000 1000																													// Configuration register -> disable ADC conversion and reset registers
 	driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
 		
 	configBytes[0] = 0x0B;																																						// Advanced config register Mode 1 + ext ref
-	configBytes[1] = 0x03;
+	configBytes[1] = 0x03;		//Advanced Configuration Register, value = 0000 0011	
 	driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
 	
 	configBytes[0] = 0x07;																																						// Configuration rate register -> continious conversion
-	configBytes[1] = 0x01;
+	configBytes[1] = 0x01; 	//Conversion Rate Register, value = 0000 0001
 	driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
 	
 	configBytes[0] = 0x08;																																						// Channel disable register -> disable channel 6
-	configBytes[1] = 0x00;
+	configBytes[1] = 0x00;	//Channel Disable Register
 	driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
 	
 	configBytes[0] = 0x03;																																						// Interrupt enable register -> disable all interrupts
-	configBytes[1] = 0xFF;
+	configBytes[1] = 0xFF;	//Interrupt Mask Register, value = 1111 1111
 	driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
 	
 	configBytes[0] = 0x00;																																						// Configuration register -> enable ADC conversion
-	configBytes[1] = 0x01;
+	configBytes[1] = 0x01;	//configuration register, value = 0000 0001
 	driverHWI2C1Write(ADC128D818_ADDRES,false,configBytes,sizeof(configBytes));
 	
 	

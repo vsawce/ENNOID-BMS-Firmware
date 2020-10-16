@@ -1,7 +1,7 @@
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
 
-#define NoOfSwitches  6
+#define NoOfSwitches  6 //7
 
 typedef struct {
 	GPIO_TypeDef* Port;
@@ -19,7 +19,9 @@ typedef enum {
 	SWITCH_PRECHARGE,
 	SWITCH_DISCHARGE,
 	SWITCH_DISCHARGEHV,
-	SWITCH_SAFETY_OUTPUT
+	SWITCH_SAFETY_OUTPUT//,
+	//SWITCH_CHARGE_BYPASS
+	
 } driverHWSwitchesIDTypedef;
 
 typedef enum {

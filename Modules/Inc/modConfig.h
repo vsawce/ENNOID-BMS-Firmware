@@ -10,6 +10,7 @@
 #define modConfigNoOfNTCTypes      5
 #define modConfigNTCGroupLTCExt    2
 #define modConfigNTCGroupMasterPCB 3
+#define modConfigNTCGroupExp 4
 
 
 typedef struct {
@@ -25,6 +26,7 @@ typedef struct {
 	float    cellSoftOverVoltage;																								  // If the upper cell is above this voltage -> disable charging, but keep bms enabled
 	float    cellBalanceDifferenceThreshold;																			// If the upper cell is more than this voltage away from the average -> start discharging this cell
 	float    cellBalanceStart;																										// If an upper cell is above this voltage and higher than the cellBalanceDifferenceThreshold voltage then average, start discharging 
+	bool 		 cellBalanceAllTime;																									// Enable balancing under all opstate
 	float    cellThrottleUpperStart;																							// Charge throttle range
 	float    cellThrottleLowerStart;																							// Discharge throttle rande
 	float    cellThrottleUpperMargin;																							// Margin from the upper cell voltage extremes
@@ -82,6 +84,8 @@ typedef struct {
 	uint32_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
 	uint32_t tempEnableMaskBattery;																								// Stores the mask to select what temperature sensor is enabled for the battery.
 	uint8_t  noOfTempSensorPerModule;                                             // Number of temperature sensor monitored per LTC68XX
+	uint8_t  noOfExpansionBoard;                     							                // Number of expansion board
+	uint8_t  noOfTempSensorPerExpansionBoard;                                     // Number of temperature sensor monitored per expansion board
 	uint8_t  LCUseDischarge;                                                      // Enable or disable switch output.
 	uint8_t  LCUsePrecharge;                                                      // choice whether to precharge or not.
 	uint8_t  allowChargingDuringDischarge;																				// Allow charging during discharge.

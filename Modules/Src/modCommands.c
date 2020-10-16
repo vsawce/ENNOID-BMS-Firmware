@@ -138,6 +138,18 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
+		case COMM_GET_BMS_EXP_TEMP:
+			ind = 0;
+			modCommandsSendBuffer[ind++] = COMM_GET_BMS_EXP_TEMP;
+		
+		  libBufferAppend_uint8(modCommandsSendBuffer, modCommandsGeneralConfig->cellMonitorICCount*modCommandsGeneralConfig->noOfTempSensorPerModule, &ind);                // Total aux count
+		  for(auxPointer = 0; auxPointer < modCommandsGeneralConfig->cellMonitorICCount*modCommandsGeneralConfig->noOfTempSensorPerModule; auxPointer++){
+					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->auxVoltagesIndividual[auxPointer].auxVoltage, 1e1, &ind);          // Individual aux
+			}
+		
+			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			modCommandsSendPacket(modCommandsSendBuffer, ind);
+			break;
 		case COMM_SET_MCCONF:
 			ind = 0;
 		  modCommandsGeneralConfig->noOfCellsSeries                = libBufferGet_uint8(data,&ind);                  // 1
@@ -150,6 +162,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->cellSoftOverVoltage            = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellBalanceDifferenceThreshold = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellBalanceStart               = libBufferGet_float32_auto(data,&ind);           // 4
+			modCommandsGeneralConfig->cellBalanceAllTime             = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->cellThrottleUpperStart         = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellThrottleLowerStart         = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellThrottleUpperMargin        = libBufferGet_float32_auto(data,&ind);           // 4
@@ -208,6 +221,8 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->tempEnableMaskBMS              = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->tempEnableMaskBattery          = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->noOfTempSensorPerModule        = libBufferGet_uint8(data,&ind);		               // 1
+			modCommandsGeneralConfig->noOfExpansionBoard						 = libBufferGet_uint8(data,&ind);		               // 1
+			modCommandsGeneralConfig->noOfTempSensorPerExpansionBoard= libBufferGet_uint8(data,&ind);		               // 1
 		  modCommandsGeneralConfig->LCUseDischarge                 = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->LCUsePrecharge                 = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->allowChargingDuringDischarge   = libBufferGet_uint8(data,&ind);                  // 1
@@ -221,6 +236,9 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupMasterPCB]      = libBufferGet_uint32(data,&ind);// 4
 			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupMasterPCB]  = libBufferGet_uint32(data,&ind);// 4
 			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupMasterPCB]       = libBufferGet_uint16(data,&ind);// 2
+			modCommandsGeneralConfig->NTCTopResistor[modConfigNTCGroupExp]     				= libBufferGet_uint32(data,&ind);// 4
+			modCommandsGeneralConfig->NTC25DegResistance[modConfigNTCGroupExp]  			= libBufferGet_uint32(data,&ind);// 4
+			modCommandsGeneralConfig->NTCBetaFactor[modConfigNTCGroupExp]       			= libBufferGet_uint16(data,&ind);// 2
 			modCommandsGeneralConfig->cellMonitorType                                 = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->cellMonitorICCount                              = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->externalEnableOperationalState                  = libBufferGet_uint8(data,&ind); // 1
@@ -256,6 +274,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellSoftOverVoltage             ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceDifferenceThreshold  ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceStart                ,&ind); // 4
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->cellBalanceAllTime              ,&ind); // 1
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperStart          ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleLowerStart          ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellThrottleUpperMargin         ,&ind); // 4
@@ -314,6 +333,8 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBMS               ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBattery           ,&ind); // 4
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfTempSensorPerModule         ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfExpansionBoard 						 ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfTempSensorPerExpansionBoard ,&ind); // 1
 		  libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->LCUseDischarge                  ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->LCUsePrecharge                  ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->allowChargingDuringDischarge    ,&ind); // 1
@@ -327,6 +348,9 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupMasterPCB],&ind);     // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupMasterPCB],&ind); // 4
 			libBufferAppend_uint16(       modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupMasterPCB],&ind);      // 2
+			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->NTCTopResistor[modConfigNTCGroupExp],&ind);     // 4
+			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->NTC25DegResistance[modConfigNTCGroupExp],&ind); // 4
+			libBufferAppend_uint16(       modCommandsSendBuffer,modCommandsToBeSendConfig->NTCBetaFactor[modConfigNTCGroupExp],&ind);      // 2
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->cellMonitorType                 ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->cellMonitorICCount              ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->externalEnableOperationalState  ,&ind); // 1
