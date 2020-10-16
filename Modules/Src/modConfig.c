@@ -1,3 +1,23 @@
+/*
+	Copyright 2017 - 2018 Danny Bokma	danny@diebie.nl
+	Copyright 2019 - 2020 Kevin Dionne	kevin.dionne@ennoid.me
+
+	This file is part of the DieBieMS/ENNOID-BMS firmware.
+
+	The DieBieMS/ENNOID-BMS firmware is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The DieBieMS/ENNOID-BMS firmware is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "modConfig.h"
 
 modConfigGeneralConfigStructTypedef modConfigGeneralConfig;
@@ -82,7 +102,6 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	#ifdef ENNOID_LV
 	configLocation->noOfCellsSeries														     = 12;											// Total number of cells in series in the battery pack
 	configLocation->noOfCellsParallel                              = 10;                      // Number of cells in parallel
-	configLocation->noOfCellsPerModule                             = 12;                      // Number of cell levels monitored per LTC68XX
 	configLocation->noOfParallelModules                       	   = 1;                     	// Number of parallel modules
 	configLocation->batteryCapacity														     = 22.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
@@ -100,14 +119,16 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->packCurrentDataSource                          = sourcePackCurrentLowCurrentShunt; // The pack current is the same as the current through the low current shunt
 	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
-	configLocation->buzzerSingalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
+	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.051f;              		// Shunt factor low current
 	configLocation->shuntLCOffset                                  = 2;                       // Shunt offset low current
-	configLocation->voltageLCFactor	                               = 3.50f;                   // Pack voltage factor Master-HV: 125, Master-LV: 3.5
+	configLocation->shuntChargeFactor                              = -0.051f;              		// Shunt factor Charge
+	configLocation->shuntChargeOffset                              = 2;                      // Shunt offset Charge
+	configLocation->voltageLCFactor	                               = 3.50f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
-	configLocation->loadVoltageFactor	                             = 49.2f;                   // Load voltage factor Master-HV: 135, Master-LV: 50
+	configLocation->loadVoltageFactor	                             = 49.2f;                   // Load voltage factor 
 	configLocation->loadVoltageOffset                              = 0.0f;                    // Load voltage offset
-	configLocation->chargerVoltageFactor	                         = 49.2f;                   // Charger voltage factor Master-HV: 135, Master-LV: 50
+	configLocation->chargerVoltageFactor	                         = 49.2f;                   // Charger voltage factor 
 	configLocation->chargerVoltageOffset                           = 0.0f;                    // Charger voltage offset
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
@@ -122,7 +143,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->maxMismatchThreshold											     = 0.010f;									// If mismatch is under this threshold for timeoutChargingCompletedMinimalMismatch determin fully charged.
 	configLocation->chargerEnabledThreshold										     = 0.5f;										// If charge current > X.XA stay in charging mode and dont power off.
 	configLocation->timeoutChargerDisconnected								     = 2000;										// Wait for X seconds to respond to charger disconnect.
-	configLocation->minimalPrechargePercentage								     = 0.60f;										// output should be at a minimal of 80% of input voltage.
+	configLocation->minimalPrechargePercentage								     = 0.90f;										// output should be at a minimal of 80% of input voltage.
 	configLocation->timeoutLCPreCharge												     = 1.5*1000;								// Precharge error timeout, allow 1.5 seconds pre-charge time before declaring load error.
 	configLocation->maxAllowedCurrent													     = 120.0f;									// Allow max XXXA trough BMS.
 	configLocation->allowedTempBattDischargingMax                  = 75.0f;                   // Max battery temperature where discharging is still allowed
@@ -138,6 +159,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
+	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
 	configLocation->notUsedTimeout														     = 20*60*1000;							// If pack is not used for longer than XX minutes disable bms.
 	configLocation->stateOfChargeStoreInterval								     = 60*1000;									// Interval in ms to store state of charge information.
@@ -145,14 +167,21 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->CANID																			     = 10;											// CAN ID for CAN communication.
 	configLocation->CANIDStyle                                     = CANIDStyleVESC;          // CAN ID default Style.
 	configLocation->emitStatusOverCAN                              = false;                   // Send status over can.
+	configLocation->canBusSpeed                                    = canSpeedBaud500k;        // 500k CAN baud
 	configLocation->emitStatusProtocol                             = canEmitProtocolDieBieEngineering; // Can emit protocol set to MG style for backwards compatibility
 	configLocation->tempEnableMaskBMS                              = 0x0008;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x0001;									// Bitwise select what sensor to enable for the battery (external sensors).
+	configLocation->tempEnableMaskExpansion                     	 = 0x0001;									// Bitwise select what sensor to enable for the expansion boards(external sensors).
   configLocation->noOfTempSensorPerModule            						 = 1;												// Number of temperature sensors monitored per LTC68XX
-	configLocation->noOfExpansionBoard   							       			 = 0;												// Number of expansion board
-	configLocation->noOfTempSensorPerExpansionBoard          			 = 0;												// Number of temperature sensors monitored per expansion board
+	configLocation->noOfExpansionBoard   							       			 = 1;												// Number of expansion board
+	configLocation->noOfTempSensorPerExpansionBoard          			 = 1;												// Number of temperature sensors monitored per expansion board
 	configLocation->LCUseDischarge                                 = enabled;                 // Enable or disable the solid state output
 	configLocation->LCUsePrecharge                                 = enabled;              		// Use precharge before enabling main output
+	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
+	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
+	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
+	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
+	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
 	configLocation->NTCTopResistor[modConfigNTCGroupLTCExt]        = 100000;                  // NTC Pullup resistor value
 	configLocation->NTCTopResistor[modConfigNTCGroupMasterPCB]     = 100000;                  // NTC Pullup resistor value
 	configLocation->NTCTopResistor[modConfigNTCGroupExp]  			   = 100000;                  // NTC Pullup resistor value
@@ -162,26 +191,20 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTCBetaFactor[modConfigNTCGroupLTCExt]         = 4250;                    // NTC Beta factor
 	configLocation->NTCBetaFactor[modConfigNTCGroupMasterPCB]      = 4250;                    // NTC Beta factor
 	configLocation->NTCBetaFactor[modConfigNTCGroupExp]      			 = 4250;                    // NTC Beta factor
-	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
-	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
-	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
-	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
-	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
-	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
 	configLocation->cellMonitorType                                = CELL_MON_LTC6811_1;      // Use the new cell voltage monitor
 	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
+	configLocation->externalEnableOperationalState                 = opStateExtNormal;        // Go to normal enable mode
+	configLocation->chargeEnableOperationalState                   = opStateChargingModeCharging;// Go to charging mode when a charger is connected
+	configLocation->powerDownDelay                                 = 3000;                    // Wait only minimal to turn off
+
+	configLocation->noOfCellsPerModule                             = 12;                      // Number of cell levels monitored per LTC68XX
 	configLocation->lastICNoOfCells																 = 0;
 	configLocation->lastICMask																		 = 0;
-	configLocation->externalEnableOperationalState                 = opStateExtNormal;        // Go to normal enable mode
-	configLocation->powerDownDelay                                 = 3000;                    // Wait only minimal to turn off
-	configLocation->canBusSpeed                                    = canSpeedBaud500k;        // 500k CAN baud
-	configLocation->chargeEnableOperationalState                   = opStateChargingModeCharging;// Go to charging mode when a charger is connected
 #endif
 
 #ifdef ENNOID_HV
 	configLocation->noOfCellsSeries														     = 12;											// Total number of cells in series in the battery pack
 	configLocation->noOfCellsParallel                              = 10;                      // Number of cells in parallel
-	configLocation->noOfCellsPerModule                             = 12;                      // Number of cell levels monitored per LTC68XX
 	configLocation->noOfParallelModules                       	   = 1;                     	// Number of parallel modules
 	configLocation->batteryCapacity														     = 22.00f;									// XXAh battery
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
@@ -199,13 +222,17 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->packCurrentDataSource                          = sourcePackCurrentLowCurrentShunt; // The pack current is the same as the current through the low current shunt
 	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
-	configLocation->buzzerSingalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
+	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.07f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = -7;                       // Shunt offset low current
-	configLocation->voltageLCFactor	                               = 50.00f;                   // Pack voltage factor Master-HV: 125, Master-LV: 3.5
+	configLocation->shuntLCOffset                                  = -7;                      // Shunt offset low current
+	configLocation->shuntChargeFactor                              = -0.07f;              		// Shunt factor Charge
+	configLocation->shuntChargeOffset                              = -7;                      // Shunt offset Charge
+	configLocation->voltageLCFactor	                               = 47.5f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
-	configLocation->loadVoltageFactor	                             = 200.0f;                   // Load voltage factor Master-HV: 135, Master-LV: 50
-	configLocation->loadVoltageOffset                              = 11.0f;                    // Load voltage offset
+	configLocation->loadVoltageFactor	                             = 190.0f;                  // Load voltage factor 
+	configLocation->loadVoltageOffset                              = 9.0f;                    // Load voltage offset
+	configLocation->chargerVoltageFactor	                         = 49.2f;                   // Charger voltage factor 
+	configLocation->chargerVoltageOffset                           = 0.0f;                    // Charger voltage offset
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
 	configLocation->cellBalanceUpdateInterval									     = 4*1000;									// Keep calculated resistors enabled for this amount of time in miliseconds.
@@ -219,7 +246,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->maxMismatchThreshold											     = 0.010f;									// If mismatch is under this threshold for timeoutChargingCompletedMinimalMismatch determin fully charged.
 	configLocation->chargerEnabledThreshold										     = 0.5f;										// If charge current > X.XA stay in charging mode and dont power off.
 	configLocation->timeoutChargerDisconnected								     = 2000;										// Wait for X seconds to respond to charger disconnect.
-	configLocation->minimalPrechargePercentage								     = 0.80f;										// output should be at a minimal of 80% of input voltage.
+	configLocation->minimalPrechargePercentage								     = 0.90f;										// output should be at a minimal of 80% of input voltage.
 	configLocation->timeoutLCPreCharge												     = 1.5*1000;								// Precharge error timeout, allow 1.5 seconds pre-charge time before declaring load error.
 	configLocation->maxAllowedCurrent													     = 120.0f;									// Allow max XXXA trough BMS.
 	configLocation->allowedTempBattDischargingMax                  = 75.0f;                   // Max battery temperature where discharging is still allowed
@@ -235,21 +262,29 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
+	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
 	configLocation->notUsedTimeout														     = 20*60*1000;							// If pack is not used for longer than XX minutes disable bms.
 	configLocation->stateOfChargeStoreInterval								     = 60*1000;									// Interval in ms to store state of charge information.
 	configLocation->stateOfChargeMethod                            = socCoulomb;              // Use coulomb counting for SoC calculation
 	configLocation->CANID																			     = 10;											// CAN ID for CAN communication.
 	configLocation->CANIDStyle                                     = CANIDStyleVESC;          // CAN ID default Style.
+	configLocation->canBusSpeed                                    = canSpeedBaud500k;        // 500k CAN baud
 	configLocation->emitStatusOverCAN                              = false;                   // Send status over can.
 	configLocation->emitStatusProtocol                             = canEmitProtocolDieBieEngineering; // Can emit protocol set to MG style for backwards compatibility
 	configLocation->tempEnableMaskBMS                              = 0x0008;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0x0001;									// Bitwise select what sensor to enable for the battery (external sensors).
-  configLocation->noOfTempSensorPerModule            						 = 1;												// Number of temperature sensors monitored per LTC68XX
+  configLocation->tempEnableMaskExpansion                         = 0x0001;									// Bitwise select what sensor to enable for the battery (external sensors).
+	configLocation->noOfTempSensorPerModule            						 = 1;												// Number of temperature sensors monitored per LTC68XX
 	configLocation->noOfExpansionBoard       							   			 = 0;												// Number of expansion board
 	configLocation->noOfTempSensorPerExpansionBoard          			 = 0;												// Number of temperature sensors monitored per expansion board
 	configLocation->LCUseDischarge                                 = enabled;                 // Enable or disable the solid state output
 	configLocation->LCUsePrecharge                                 = enabled;              		// Use precharge before enabling main output
+	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
+	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
+	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
+	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
+	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
 	configLocation->NTCTopResistor[modConfigNTCGroupLTCExt]        = 100000;                  // NTC Pullup resistor value
 	configLocation->NTCTopResistor[modConfigNTCGroupMasterPCB]     = 100000;                  // NTC Pullup resistor value
 	configLocation->NTCTopResistor[modConfigNTCGroupExp]    			 = 100000;                  // NTC Pullup resistor value
@@ -259,20 +294,16 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->NTCBetaFactor[modConfigNTCGroupLTCExt]         = 4250;                    // NTC Beta factor
 	configLocation->NTCBetaFactor[modConfigNTCGroupMasterPCB]      = 4250;                    // NTC Beta factor
 	configLocation->NTCBetaFactor[modConfigNTCGroupExp]		       	 = 4250;                    // NTC Beta factor
-	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
-	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
-	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
-	configLocation->togglePowerModeDirectHCDelay                   = true;                    // Select either direct power state control or HC output control with delayed turn off.
-	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN
-	configLocation->useCANDelayedPowerDown                         = false;                   // Use delayed power down
 	configLocation->cellMonitorType                                = CELL_MON_LTC6811_1;      // Use the new cell voltage monitor
 	configLocation->cellMonitorICCount                             = 1;                       // Only one slave IC
+	configLocation->externalEnableOperationalState                 = opStateExtNormal;        // Go to normal enable mode
+	configLocation->chargeEnableOperationalState                   = opStateChargingModeCharging;// Go to charging mode when a charger is connected
+	configLocation->powerDownDelay                                 = 3000;                    // Wait only minimal to turn off
+	
+	configLocation->noOfCellsPerModule                             = 12;                      // Number of cell levels monitored per LTC68XX	
 	configLocation->lastICNoOfCells																 = 0;
 	configLocation->lastICMask																		 = 0;
-	configLocation->externalEnableOperationalState                 = opStateExtNormal;        // Go to normal enable mode
-	configLocation->powerDownDelay                                 = 3000;                    // Wait only minimal to turn off
-	configLocation->canBusSpeed                                    = canSpeedBaud500k;        // 500k CAN baud
-	configLocation->chargeEnableOperationalState                   = opStateChargingModeCharging;// Go to charging mode when a charger is connected
+
 #endif
 }
 

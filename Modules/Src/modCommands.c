@@ -1,3 +1,23 @@
+/*
+	Copyright 2017 - 2018 Danny Bokma	danny@diebie.nl
+	Copyright 2019 - 2020 Kevin Dionne	kevin.dionne@ennoid.me
+
+	This file is part of the DieBieMS/ENNOID-BMS firmware.
+
+	The DieBieMS/ENNOID-BMS firmware is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The DieBieMS/ENNOID-BMS firmware is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "modCommands.h"
 
 // Private variables
@@ -37,6 +57,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 	uint32_t delayTick;
 	uint8_t cellPointer;
 	uint8_t auxPointer;
+	uint8_t expPointer;
 
 	packet_id = (COMM_PACKET_ID) data[0];
 	data++;
@@ -142,9 +163,9 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			ind = 0;
 			modCommandsSendBuffer[ind++] = COMM_GET_BMS_EXP_TEMP;
 		
-		  libBufferAppend_uint8(modCommandsSendBuffer, modCommandsGeneralConfig->cellMonitorICCount*modCommandsGeneralConfig->noOfTempSensorPerModule, &ind);                // Total aux count
-		  for(auxPointer = 0; auxPointer < modCommandsGeneralConfig->cellMonitorICCount*modCommandsGeneralConfig->noOfTempSensorPerModule; auxPointer++){
-					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->auxVoltagesIndividual[auxPointer].auxVoltage, 1e1, &ind);          // Individual aux
+		  libBufferAppend_uint8(modCommandsSendBuffer, modCommandsGeneralConfig->noOfExpansionBoard*modCommandsGeneralConfig->noOfTempSensorPerExpansionBoard, &ind);                // Total aux count
+		  for(expPointer = 0; expPointer < modCommandsGeneralConfig->noOfExpansionBoard*modCommandsGeneralConfig->noOfTempSensorPerExpansionBoard; expPointer++){
+					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->expVoltagesIndividual[expPointer].expVoltage, 1e1, &ind);          // Individual aux
 			}
 		
 			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
@@ -171,9 +192,11 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  modCommandsGeneralConfig->packCurrentDataSource          = libBufferGet_uint8(data,&ind);                  // 1
 		  modCommandsGeneralConfig->buzzerSignalSource             = libBufferGet_uint8(data,&ind);                  // 1
 		  modCommandsGeneralConfig->buzzerSignalType               = libBufferGet_uint8(data,&ind);                  // 1
-		  modCommandsGeneralConfig->buzzerSingalPersistant         = libBufferGet_uint8(data,&ind);                  // 1
+		  modCommandsGeneralConfig->buzzerSignalPersistant         = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->shuntLCFactor                  = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->shuntLCOffset                  = libBufferGet_int16(data,&ind);                  // 2
+			modCommandsGeneralConfig->shuntChargeFactor              = libBufferGet_float32_auto(data,&ind);           // 4
+			modCommandsGeneralConfig->shuntChargeOffset              = libBufferGet_int16(data,&ind);                  // 2
 			modCommandsGeneralConfig->voltageLCFactor	               = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->voltageLCOffset                = libBufferGet_int16(data,&ind);                  // 2
 			modCommandsGeneralConfig->loadVoltageFactor	             = libBufferGet_float32_auto(data,&ind);           // 4
@@ -209,6 +232,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->displayTimeoutBatteryErrorPreCharge = libBufferGet_uint32(data,&ind);            // 4
 			modCommandsGeneralConfig->displayTimeoutSplashScreen     = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->maxUnderAndOverVoltageErrorCount = libBufferGet_uint8(data,&ind);                // 1
+			modCommandsGeneralConfig->maxUnderAndOverTemperatureErrorCount = libBufferGet_uint8(data,&ind);            // 1
 			modCommandsGeneralConfig->notUsedCurrentThreshold        = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->notUsedTimeout                 = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->stateOfChargeStoreInterval     = libBufferGet_uint32(data,&ind);                 // 4
@@ -220,6 +244,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->emitStatusProtocol             = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->tempEnableMaskBMS              = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->tempEnableMaskBattery          = libBufferGet_uint32(data,&ind);                 // 4
+			modCommandsGeneralConfig->tempEnableMaskExpansion        = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->noOfTempSensorPerModule        = libBufferGet_uint8(data,&ind);		               // 1
 			modCommandsGeneralConfig->noOfExpansionBoard						 = libBufferGet_uint8(data,&ind);		               // 1
 			modCommandsGeneralConfig->noOfTempSensorPerExpansionBoard= libBufferGet_uint8(data,&ind);		               // 1
@@ -283,9 +308,11 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->packCurrentDataSource           ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalSource              ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalType                ,&ind); // 1
-			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSingalPersistant          ,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalPersistant          ,&ind); // 1
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCFactor                   ,&ind); // 4
 			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCOffset                   ,&ind); // 2
+			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->shuntChargeFactor               ,&ind); // 4
+			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->shuntChargeOffset               ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->voltageLCFactor                 ,&ind); // 4
 			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->voltageLCOffset                 ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->loadVoltageFactor               ,&ind); // 4
@@ -321,6 +348,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryErrorPreCharge,&ind);//4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutSplashScreen      ,&ind); // 4
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->maxUnderAndOverVoltageErrorCount,&ind); // 1
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->maxUnderAndOverTemperatureErrorCount,&ind); // 1
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->notUsedCurrentThreshold         ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->notUsedTimeout                  ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->stateOfChargeStoreInterval      ,&ind); // 4
@@ -332,6 +360,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->emitStatusProtocol              ,&ind); // 1
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBMS               ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskBattery           ,&ind); // 4
+			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->tempEnableMaskExpansion         ,&ind); // 4
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfTempSensorPerModule         ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfExpansionBoard 						 ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfTempSensorPerExpansionBoard ,&ind); // 1

@@ -1,3 +1,23 @@
+/*
+	Copyright 2017 - 2018 Danny Bokma	danny@diebie.nl
+	Copyright 2019 - 2020 Kevin Dionne	kevin.dionne@ennoid.me
+
+	This file is part of the DieBieMS/ENNOID-BMS firmware.
+
+	The DieBieMS/ENNOID-BMS firmware is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The DieBieMS/ENNOID-BMS firmware is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef __MODCONFIG_H
 #define __MODCONFIG_H
 
@@ -35,9 +55,11 @@ typedef struct {
 	uint8_t  packCurrentDataSource;                                               // Enum value of pack current data source (what source to derive the current information from LC/HC/LC+HC/CAN)
 	uint8_t  buzzerSignalSource;                                                  // - Stores what source shoud be taken to trigger
 	uint8_t	 buzzerSignalType;                                                    // - Stores what sound pattern should be made
-	uint8_t  buzzerSingalPersistant;                                              // - Stores whether the buzzer should stay on after triggering
+	uint8_t  buzzerSignalPersistant;                                              // - Stores whether the buzzer should stay on after triggering
 	float    shuntLCFactor;                                                       // Shunt multiplication factor Low current
 	int16_t  shuntLCOffset;                                                       // Shunt low current offset
+	float    shuntChargeFactor;                                                   // Shunt multiplication factor Charge
+	int16_t  shuntChargeOffset;                                                   // Shunt Charge offset
 	float    voltageLCFactor;                                                     // Battery Voltage multiplication factor Low current
 	int16_t  voltageLCOffset;                                                     // Battery Voltage low current offset
 	float    loadVoltageFactor;                                                   // Load Voltage multiplication factor 
@@ -73,6 +95,7 @@ typedef struct {
 	uint32_t displayTimeoutBatteryErrorPreCharge;																	// Duration of displaying error symbol
 	uint32_t displayTimeoutSplashScreen;																					// Duration of displaying splash screen + First few samples of ADC's
 	uint8_t  maxUnderAndOverVoltageErrorCount;																		// Threshold that defines max amount of hard over / under voltage errors
+	uint8_t  maxUnderAndOverTemperatureErrorCount;																// Threshold that defines max amount of hard over / under temperature errors
 	float    notUsedCurrentThreshold;																							// Threshold that defines whether or not pack is in use.
 	uint32_t notUsedTimeout;																											// Delay time that defines max amount of no operation on-time. When absolute battery curren < notUsedCurrentThreshold for longer than this amount of time -> the system is disabled
 	uint32_t stateOfChargeStoreInterval;																					// Interval to store state of charge information.
@@ -83,6 +106,7 @@ typedef struct {
 	uint8_t  emitStatusProtocol;																									// The protocol type / format to send the status data
 	uint32_t tempEnableMaskBMS;																								    // Stores the mask to select what temperature sensor is enabled for the BMS.
 	uint32_t tempEnableMaskBattery;																								// Stores the mask to select what temperature sensor is enabled for the battery.
+	uint32_t tempEnableMaskExpansion;																								// Stores the mask to select what temperature sensor is enabled for the battery.
 	uint8_t  noOfTempSensorPerModule;                                             // Number of temperature sensor monitored per LTC68XX
 	uint8_t  noOfExpansionBoard;                     							                // Number of expansion board
 	uint8_t  noOfTempSensorPerExpansionBoard;                                     // Number of temperature sensor monitored per expansion board
