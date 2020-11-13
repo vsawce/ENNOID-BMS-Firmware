@@ -177,6 +177,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  modCommandsGeneralConfig->noOfCellsParallel              = libBufferGet_uint8(data,&ind);		               // 1
 			modCommandsGeneralConfig->noOfParallelModules          	 = libBufferGet_uint8(data,&ind);		               // 1
 			modCommandsGeneralConfig->batteryCapacity                = libBufferGet_float32_auto(data,&ind);           // 4
+			modCommandsGeneralConfig->cellVoltageOffset              = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellHardUnderVoltage           = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellHardOverVoltage            = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellLCSoftUnderVoltage         = libBufferGet_float32_auto(data,&ind);           // 4
@@ -293,7 +294,8 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfCellsParallel               ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfParallelModules             ,&ind); // 1
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->batteryCapacity                 ,&ind); // 4
-		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellHardUnderVoltage            ,&ind); // 4
+		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellVoltageOffset               ,&ind); // 4	
+			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellHardUnderVoltage            ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellHardOverVoltage             ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellLCSoftUnderVoltage          ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellSoftOverVoltage             ,&ind); // 4

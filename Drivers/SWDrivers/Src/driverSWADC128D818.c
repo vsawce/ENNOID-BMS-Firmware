@@ -94,6 +94,7 @@ uint16_t driverSWADC128D818GetChannel(uint8_t adcChannel, uint8_t address){
 	return (readBytes[0] << 4) | (readBytes[1] >> 4);
 }
 */
+
 void driverSWADC128D818ReadExpVoltages(uint8_t noOfExpansionBoard, uint16_t exp_codes[][driverSWADC128D818MaxNoOfTempSensorPerExpansionBoard]) {
 	
 		static uint8_t registerPointer = 0x20;
@@ -106,8 +107,6 @@ void driverSWADC128D818ReadExpVoltages(uint8_t noOfExpansionBoard, uint16_t exp_
 			driverHWI2C1Write(ADC128Address[modulePointer],false,&expRegisterPointer,1);
 			driverHWI2C1Read(ADC128Address[modulePointer],readBytes,2);
 			exp_codes[modulePointer][expPointer] = ((readBytes[0] << 4) | (readBytes[1])>>4);
-			//modCommandsPrintf("readBytes 0   : %u",readBytes[0]);
-			//modCommandsPrintf("readBytes 1   : %u",readBytes[0]);
 		}
 	}
 }
@@ -134,17 +133,13 @@ float driverSWADC128D818ConvertTemperatureExt(uint16_t inputValue,uint32_t ntcNo
 bool driverSWADC128D818ReadExpVoltagesArray(float expVoltagesArray[][driverSWADC128D818MaxNoOfTempSensorPerExpansionBoard],uint32_t ntcNominal,uint32_t ntcSeriesResistance, uint16_t ntcBetaFactor, float ntcNominalTemp) {
 	bool dataValid = true;
 	
-	//uint8_t configBytes[] = {0x09,0x01};
-	//driverHWI2C1Write(ADC128Address[0],false,configBytes,sizeof(configBytes));
-	
 	uint16_t expVoltageArrayCodes[driverSWADC128D818TotalNoOfExpansionBoard][driverSWADC128D818MaxNoOfTempSensorPerExpansionBoard]; 
 	
 	driverSWADC128D818ReadExpVoltages(driverSWADC128D818TotalNoOfExpansionBoard,expVoltageArrayCodes);
 	
   for(uint8_t modulePointer = 0; modulePointer < driverSWADC128D818TotalNoOfExpansionBoard; modulePointer++) {
 		for(uint8_t channelPointer = 0; channelPointer < driverSWADC128D818MaxNoOfTempSensorPerExpansionBoard; channelPointer++){
-			//if(expVoltageArrayCodes[modulePointer][channelPointer]*0.0001f < 10.0f)
-			if(true)
+			if(expVoltageArrayCodes[modulePointer][channelPointer]*0.001f < 5.0f)
 			  expVoltagesArray[modulePointer][channelPointer] = driverSWADC128D818ConvertTemperatureExt(expVoltageArrayCodes[modulePointer][channelPointer], ntcNominal, ntcSeriesResistance, ntcBetaFactor, ntcNominalTemp);
 			else
 				dataValid = false;

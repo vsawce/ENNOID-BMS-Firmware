@@ -104,6 +104,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->noOfCellsParallel                              = 10;                      // Number of cells in parallel
 	configLocation->noOfParallelModules                       	   = 1;                     	// Number of parallel modules
 	configLocation->batteryCapacity														     = 22.00f;									// XXAh battery
+	configLocation->cellVoltageOffset														   = 0.00f;										// Cell voltage offset
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.20f;										// Worst case X.XXV as highest cell voltage
 	configLocation->cellLCSoftUnderVoltage											   = 2.70f;										// Lowest cell voltage X.XXV.
@@ -170,8 +171,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->canBusSpeed                                    = canSpeedBaud500k;        // 500k CAN baud
 	configLocation->emitStatusProtocol                             = canEmitProtocolDieBieEngineering; // Can emit protocol set to MG style for backwards compatibility
 	configLocation->tempEnableMaskBMS                              = 0x0008;									// Bitwise select what sensor to enable for the BMS (internal sensors).
-	configLocation->tempEnableMaskBattery                          = 0x0001;									// Bitwise select what sensor to enable for the battery (external sensors).
-	configLocation->tempEnableMaskExpansion                     	 = 0x0001;									// Bitwise select what sensor to enable for the expansion boards(external sensors).
+	configLocation->tempEnableMaskBattery                          = 0xFFFF;									// Bitwise select what sensor to enable for the battery (external sensors).
+	configLocation->tempEnableMaskExpansion                     	 = 0xFFFF;									// Bitwise select what sensor to enable for the expansion boards(external sensors).
   configLocation->noOfTempSensorPerModule            						 = 1;												// Number of temperature sensors monitored per LTC68XX
 	configLocation->noOfExpansionBoard   							       			 = 1;												// Number of expansion board
 	configLocation->noOfTempSensorPerExpansionBoard          			 = 1;												// Number of temperature sensors monitored per expansion board
@@ -207,6 +208,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->noOfCellsParallel                              = 10;                      // Number of cells in parallel
 	configLocation->noOfParallelModules                       	   = 1;                     	// Number of parallel modules
 	configLocation->batteryCapacity														     = 22.00f;									// XXAh battery
+	configLocation->cellVoltageOffset														   = 0.00f;										// Cell voltage offset
 	configLocation->cellHardUnderVoltage											     = 2.30f;										// Worst case X.XXV as lowest cell voltage
 	configLocation->cellHardOverVoltage												     = 4.20f;										// Worst case X.XXV as highest cell voltage
 	configLocation->cellLCSoftUnderVoltage											   = 2.70f;										// Lowest cell voltage X.XXV.
@@ -273,8 +275,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->emitStatusOverCAN                              = false;                   // Send status over can.
 	configLocation->emitStatusProtocol                             = canEmitProtocolDieBieEngineering; // Can emit protocol set to MG style for backwards compatibility
 	configLocation->tempEnableMaskBMS                              = 0x0008;									// Bitwise select what sensor to enable for the BMS (internal sensors).
-	configLocation->tempEnableMaskBattery                          = 0x0001;									// Bitwise select what sensor to enable for the battery (external sensors).
-  configLocation->tempEnableMaskExpansion                         = 0x0001;									// Bitwise select what sensor to enable for the battery (external sensors).
+	configLocation->tempEnableMaskBattery                          = 0xFFFF;									// Bitwise select what sensor to enable for the battery (external sensors).
+  configLocation->tempEnableMaskExpansion                         = 0xFFFF;									// Bitwise select what sensor to enable for the battery (external sensors).
 	configLocation->noOfTempSensorPerModule            						 = 1;												// Number of temperature sensors monitored per LTC68XX
 	configLocation->noOfExpansionBoard       							   			 = 0;												// Number of expansion board
 	configLocation->noOfTempSensorPerExpansionBoard          			 = 0;												// Number of temperature sensors monitored per expansion board
