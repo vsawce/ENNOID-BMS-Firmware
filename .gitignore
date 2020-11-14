@@ -28,13 +28,3 @@ History
 *.lnp
 *.sct
 *.dbgconf
-Modules/Src/modOperationalState.c
-Modules/Src/modPowerElectronics.c
-Modules/Inc/modOperationalState.h
-Modules/Inc/modPowerElectronics.h
-Drivers/SWDrivers/Src/driverSWLTC6804.c
-Drivers/SWDrivers/Inc/driverSWLTC6804.h
-Drivers/HWDrivers/Src/driverHWADC.c
-Drivers/HWDrivers/Inc/driverHWADC.h
-Drivers/HWDrivers/Src/driverHWSwitches.c
-Drivers/HWDrivers/Inc/driverHWSwitches.h
