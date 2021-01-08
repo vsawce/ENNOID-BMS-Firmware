@@ -122,13 +122,14 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBatteryAverage, 1e1, &ind);
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSHigh, 1e1, &ind);
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSAverage, 1e1, &ind);
+			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->humidity, 1e1, &ind);
 			
 			libBufferAppend_uint8(modCommandsSendBuffer, (uint8_t)modCommandsGeneralState->operationalState, &ind);
 			libBufferAppend_uint8(modCommandsSendBuffer, (uint8_t)modCommandsGeneralState->chargeBalanceActive, &ind);  // Indicator for charging
 			
 			libBufferAppend_uint8(modCommandsSendBuffer, (uint8_t)modCommandsGeneralState->faultState, &ind);
 		
-			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 		
 			break;
@@ -144,7 +145,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->cellVoltagesIndividual[cellPointer].cellVoltage, 1e3, &ind);          // Individual cells
 			}
 		
-			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_GET_BMS_AUX:
@@ -156,7 +157,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->auxVoltagesIndividual[auxPointer].auxVoltage, 1e1, &ind);          // Individual aux
 			}
 		
-			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_GET_BMS_EXP_TEMP:
@@ -168,7 +169,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 					libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->expVoltagesIndividual[expPointer].expVoltage, 1e1, &ind);          // Individual aux
 			}
 		
-			//modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
+			modCommandsSendBuffer[ind++] = modCommandsGeneralConfig->CANID;
 			modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;
 		case COMM_SET_MCCONF:
@@ -177,7 +178,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  modCommandsGeneralConfig->noOfCellsParallel              = libBufferGet_uint8(data,&ind);		               // 1
 			modCommandsGeneralConfig->noOfParallelModules          	 = libBufferGet_uint8(data,&ind);		               // 1
 			modCommandsGeneralConfig->batteryCapacity                = libBufferGet_float32_auto(data,&ind);           // 4
-			modCommandsGeneralConfig->cellVoltageOffset              = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellHardUnderVoltage           = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellHardOverVoltage            = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->cellLCSoftUnderVoltage         = libBufferGet_float32_auto(data,&ind);           // 4
@@ -196,8 +196,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  modCommandsGeneralConfig->buzzerSignalPersistant         = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->shuntLCFactor                  = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->shuntLCOffset                  = libBufferGet_int16(data,&ind);                  // 2
-			modCommandsGeneralConfig->shuntChargeFactor              = libBufferGet_float32_auto(data,&ind);           // 4
-			modCommandsGeneralConfig->shuntChargeOffset              = libBufferGet_int16(data,&ind);                  // 2
 			modCommandsGeneralConfig->voltageLCFactor	               = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->voltageLCOffset                = libBufferGet_int16(data,&ind);                  // 2
 			modCommandsGeneralConfig->loadVoltageFactor	             = libBufferGet_float32_auto(data,&ind);           // 4
@@ -294,7 +292,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfCellsParallel               ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->noOfParallelModules             ,&ind); // 1
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->batteryCapacity                 ,&ind); // 4
-		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellVoltageOffset               ,&ind); // 4	
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellHardUnderVoltage            ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellHardOverVoltage             ,&ind); // 4
 		  libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->cellLCSoftUnderVoltage          ,&ind); // 4
@@ -313,8 +310,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalPersistant          ,&ind); // 1
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCFactor                   ,&ind); // 4
 			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCOffset                   ,&ind); // 2
-			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->shuntChargeFactor               ,&ind); // 4
-			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->shuntChargeOffset               ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->voltageLCFactor                 ,&ind); // 4
 			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->voltageLCOffset                 ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->loadVoltageFactor               ,&ind); // 4

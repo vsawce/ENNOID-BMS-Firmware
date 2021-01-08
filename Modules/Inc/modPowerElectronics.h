@@ -32,6 +32,7 @@
 #include "modPowerState.h"
 #include "stdbool.h"
 #include "math.h"
+#include "driverSWSHT21.h"
 
 #define NoOfCellsPossibleOnBMS	      	180
 #define NoOfCellMonitorsPossibleOnBMS 	10
@@ -100,6 +101,7 @@ typedef struct {
 	float    tempBMSHigh;
 	float    tempBMSLow;
 	float    tempBMSAverage;
+	float 	 humidity;
 	uint8_t  preChargeDesired;
 	uint8_t  disChargeDesired;
 	uint8_t  disChargeLCAllowed;

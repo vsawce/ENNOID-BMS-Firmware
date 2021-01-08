@@ -122,7 +122,7 @@ void modCANInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneral
 void modCANTask(void){		
 	// Manage HAL CAN driver's active state
 	if((modCANHandle.State != HAL_CAN_STATE_BUSY_RX)) {
-		//if(modDelayTick1ms(&modCANErrorLastTick,1000))
+				//		if(modDelayTick1ms(&modCANErrorLastTick,1000))
 	  HAL_CAN_Receive_IT(&modCANHandle, CAN_FIFO0);
 	}else{
 		modCANErrorLastTick = HAL_GetTick();

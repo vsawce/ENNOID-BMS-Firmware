@@ -40,7 +40,6 @@ typedef struct {
 	uint8_t  noOfCellsPerModule;                                                  // Number of cell levels monitored per LTC68XX
 	uint8_t  noOfParallelModules;                                                 // Number of parallel modules
 	float    batteryCapacity;																											// Battery capacity in Ah
-	float  	 cellVoltageOffset;                                                   // Cell Voltage offset 
 	float    cellHardUnderVoltage;																								// If the lowest cell is under this voltage -> Error situation, turn all off and power down
 	float    cellHardOverVoltage;																									// If the upper cell is above this voltage -> Error situation, turn all off and power down
 	float    cellLCSoftUnderVoltage;																							// If the lowest cell is under this voltage -> disable low current load
@@ -59,8 +58,6 @@ typedef struct {
 	uint8_t  buzzerSignalPersistant;                                              // - Stores whether the buzzer should stay on after triggering
 	float    shuntLCFactor;                                                       // Shunt multiplication factor Low current
 	int16_t  shuntLCOffset;                                                       // Shunt low current offset
-	float    shuntChargeFactor;                                                   // Shunt multiplication factor Charge
-	int16_t  shuntChargeOffset;                                                   // Shunt Charge offset
 	float    voltageLCFactor;                                                     // Battery Voltage multiplication factor Low current
 	int16_t  voltageLCOffset;                                                     // Battery Voltage low current offset
 	float    loadVoltageFactor;                                                   // Load Voltage multiplication factor 

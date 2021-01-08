@@ -34,7 +34,11 @@ typedef struct {
 extern const driverHWSwitchesPortStruct driverHWSwitchesPorts[NoOfSwitches];
 
 typedef enum {
+	#ifdef ENNOID_SS
+	SWITCH_CHARGE_BYPASS = 0,
+	#else
 	SWITCH_COOLING = 0,
+	#endif
 	SWITCH_CHARGE,
 	SWITCH_PRECHARGE,
 	SWITCH_DISCHARGE,

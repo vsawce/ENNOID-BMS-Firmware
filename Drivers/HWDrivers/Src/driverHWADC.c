@@ -7,9 +7,8 @@ ADC_HandleTypeDef hadc1;
 const driverHWADCPortStruct driverHWADCPorts[NoOfADCPorts] = 								// Hold all I2C pin configuration data
 {
 	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_1,GPIO_MODE_ANALOG,GPIO_NOPULL,0x00},	// LoadVoltageSense analog pin
-	//{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_2,GPIO_MODE_ANALOG,GPIO_NOPULL,0x00}, //ChargeVoltageSense analog pin
-	#ifdef HWVersion_0_4	
-	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_0,GPIO_MODE_ANALOG,GPIO_PULLUP,0x00}		// NTC analog pin
+	#ifdef HWVersion_1_2	
+	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_0,GPIO_MODE_ANALOG,GPIO_PULLUP,0x00}		// ChargeVoltage analog pin
 #else  																																			// Any other previous version
 	{GPIOA,RCC_AHBENR_GPIOCEN,GPIO_PIN_0,GPIO_MODE_INPUT,GPIO_PULLUP,0x00}		// P_STAT_CHARGE_DETECT
 #endif
@@ -59,7 +58,7 @@ void driverHWADCSetInputChannel(ADC_HandleTypeDef* hadc, uint32_t inputChannel) 
   sConfig.Channel = inputChannel;
   sConfig.Rank = 1;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(hadc, &sConfig) != HAL_OK)
@@ -87,12 +86,12 @@ bool driverHWADCGetLoadVoltage(float *loCurrentLoadVoltage, float offset, float 
 
 	return false;
 };
-/*
+
 bool driverHWADCGetChargerVoltage(float *chargerVoltage, float offset, float scalar) {
 	uint32_t driverHWADCAverageSum = 0;
 	uint8_t	driverHWADCAverageCount = 0;
 	
-	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_3);
+	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_1);
 
 	driverHWADCAverageSum = 0;
 	for(driverHWADCAverageCount = 0; driverHWADCAverageCount < NoOfAverages; driverHWADCAverageCount++) {
@@ -107,13 +106,13 @@ bool driverHWADCGetChargerVoltage(float *chargerVoltage, float offset, float sca
 
 	return false;
 };
-*/
+
 bool driverHWADCGetNTCValue(float *ntcValue, uint32_t ntcNominal, uint32_t ntcSeriesResistance, uint16_t ntcBetaFactor, float ntcNominalTemp) {
 	uint32_t driverHWADCAverageSum;
 	uint8_t	 driverHWADCAverageCount;
 	uint16_t driverHWADCAverage;
 	
-#ifdef HWVersion_0_4
+#ifdef HWVersion_1_2
 	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_1);
 
 	driverHWADCAverageSum = 0;

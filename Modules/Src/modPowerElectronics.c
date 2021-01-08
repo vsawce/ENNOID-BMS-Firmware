@@ -112,6 +112,7 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->tempBMSHigh              = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSLow               = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSAverage           = 0.0f;
+	modPowerElectronicsPackStateHandle->humidity			           = 0.0f;
 	modPowerElectronicsPackStateHandle->buzzerOn                 = false;
 	modPowerElectronicsPackStateHandle->powerDownDesired         = false;
 	modPowerElectronicsPackStateHandle->powerOnLongButtonPress   = false;
@@ -136,6 +137,10 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 
 	// Init the external bus monitor
   modPowerElectronicsInitISL();
+	
+	#ifdef HWVersion_SS
+	driverSWSHT21Init();
+	#endif
 	
 	// Init internal ADC
 	driverHWADCInit();
@@ -181,8 +186,15 @@ bool modPowerElectronicsTask(void) {
     // Read the battery cell voltages and temperatures with the cell monitor ICs
 		modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();
 		
-		// get STM32 ADC NTC temp
-		driverHWADCGetNTCValue(&modPowerElectronicsPackStateHandle->temperatures[3],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupMasterPCB],25.0f);
+		// get PCB mounted temperature sensor
+		#ifdef HWVersion_SS
+			if(driverSWSHT21PollMeasureReady()){
+				modPowerElectronicsPackStateHandle->temperatures[0] = driverSWSHT21GetTemperature();
+				modPowerElectronicsPackStateHandle->humidity        = driverSWSHT21GetHumidity();
+		}
+		#else
+			driverHWADCGetNTCValue(&modPowerElectronicsPackStateHandle->temperatures[0],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupMasterPCB],25.0f);
+		#endif
 		
 		// When temperature and cellvoltages are known calculate charge and discharge throttle.
 		modPowerElectronicsCalcThrottle();
@@ -526,10 +538,12 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	
 	//Handle cooling output
+	#ifndef ENNOID_SS
 	if(modPowerElectronicsPackStateHandle->coolingDesired && modPowerElectronicsPackStateHandle->coolingAllowed)
 		driverHWSwitchesSetSwitchState(SWITCH_COOLING,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	else
 		driverHWSwitchesSetSwitchState(SWITCH_COOLING,(driverHWSwitchesStateTypedef)SWITCH_RESET);
+	#endif
 };
 
 void modPowerElectronicsSortCells(cellMonitorCellsTypeDef *cells, uint8_t cellCount) {
@@ -578,6 +592,12 @@ void modPowerElectronicsCalcTempStats(void) {
 	}
 	
 	// BMS temperatures
+	
+	for(uint8_t sensorPointer = 1; sensorPointer < 16; sensorPointer++){
+		if(modPowerElectronicsGeneralConfigHandle->tempEnableMaskBMS & (1 << sensorPointer)){
+			modPowerElectronicsPackStateHandle->temperatures[sensorPointer] = modPowerElectronicsPackStateHandle->auxVoltagesIndividual[sensorPointer-1].auxVoltage;
+		}
+	}
 	
 	for(uint8_t sensorPointer = 0; sensorPointer < 16; sensorPointer++){
 	
@@ -942,12 +962,12 @@ void modPowerElectronicsCellMonitorsArrayTranslate(void) {
   for(uint8_t modulePointer = 0; modulePointer < modPowerElectronicsGeneralConfigHandle->cellMonitorICCount; modulePointer++) {
 		if((modulePointer+1) % (modPowerElectronicsGeneralConfigHandle->cellMonitorICCount/modPowerElectronicsGeneralConfigHandle->noOfParallelModules)==0 && modulePointer != 0){ // If end of serie string, use lastICNoOfCells instead of noOfCellsPerModule
 			for(uint8_t modulePointerCell = 0; modulePointerCell < modPowerElectronicsGeneralConfigHandle->lastICNoOfCells; modulePointerCell++) {
-				modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellVoltage = modPowerElectronicsPackStateHandle->cellModuleVoltages[modulePointer][modulePointerCell] + modPowerElectronicsGeneralConfigHandle->cellVoltageOffset;
+				modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellVoltage = modPowerElectronicsPackStateHandle->cellModuleVoltages[modulePointer][modulePointerCell];
 				modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellNumber = individualCellPointer++;
 			}
 		}else{ // use noOfCellsPerModule as usually
 			for(uint8_t modulePointerCell = 0; modulePointerCell < modPowerElectronicsGeneralConfigHandle->noOfCellsPerModule; modulePointerCell++) {
-				modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellVoltage = modPowerElectronicsPackStateHandle->cellModuleVoltages[modulePointer][modulePointerCell]+ modPowerElectronicsGeneralConfigHandle->cellVoltageOffset;
+				modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellVoltage = modPowerElectronicsPackStateHandle->cellModuleVoltages[modulePointer][modulePointerCell];
 				modPowerElectronicsPackStateHandle->cellVoltagesIndividual[individualCellPointer].cellNumber = individualCellPointer++;
 			}
 		};
@@ -1207,7 +1227,7 @@ void modPowerElectronicsSamplePackVoltage(float *voltagePointer) {
 	switch(modPowerElectronicsGeneralConfigHandle->packVoltageDataSource) {
 		case sourcePackVoltageNone:
 			break;
-		case sourcePackVoltageISL28022_2_0X40_LVBatteryIn:
+		case sourcePackVoltageISL28022_2_BatteryIn:
 				driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,voltagePointer,modPowerElectronicsGeneralConfigHandle->voltageLCOffset, modPowerElectronicsGeneralConfigHandle->voltageLCFactor);
 			break;
 		case sourcePackVoltageSumOfIndividualCellVoltages:
@@ -1246,7 +1266,9 @@ float modPowerElectronicsCalcPackCurrent(void){
 void modPowerElectronicsLCSenseSample(void) {
 		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,modPowerElectronicsGeneralConfigHandle->shuntLCOffset,modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage, modPowerElectronicsGeneralConfigHandle->loadVoltageOffset, modPowerElectronicsGeneralConfigHandle->loadVoltageFactor);
-		//driverHWADCGetChargerVoltage(&modPowerElectronicsPackStateHandle->chargerVoltage, modPowerElectronicsGeneralConfigHandle->chargerVoltageOffset, modPowerElectronicsGeneralConfigHandle->chargerVoltageFactor);
+	#ifdef HWVersion_SS
+		driverHWADCGetChargerVoltage(&modPowerElectronicsPackStateHandle->chargerVoltage, modPowerElectronicsGeneralConfigHandle->chargerVoltageOffset, modPowerElectronicsGeneralConfigHandle->chargerVoltageFactor);
+	#endif
 }
 
 void modPowerElectronicsLCSenseInit(void) {

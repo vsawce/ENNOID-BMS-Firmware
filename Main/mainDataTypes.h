@@ -602,7 +602,7 @@ typedef enum {
 
 typedef enum {
 	sourcePackVoltageNone = 0,
-	sourcePackVoltageISL28022_2_0X40_LVBatteryIn,
+	sourcePackVoltageISL28022_2_BatteryIn,
   sourcePackVoltageSumOfIndividualCellVoltages,
   sourcePackVoltageCANDieBieShunt,
   sourcePackVoltageCANIsabellenhutte
