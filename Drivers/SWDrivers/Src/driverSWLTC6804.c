@@ -290,7 +290,7 @@ void driverSWLTC6804ReadCellVoltageGroups(uint8_t reg, uint8_t total_ic, uint8_t
 	driverSWLTC6804WriteRead(cmd,4,data,(REG_LEN*total_ic));
 }
 
-bool driverSWLTC6804ReadVoltageFlags(uint32_t *underVoltageFlags, uint32_t *overVoltageFlags, uint32_t lastICMask, uint8_t noOfParallelModules) {
+bool driverSWLTC6804ReadVoltageFlags(uint32_t *underVoltageFlags, uint32_t *overVoltageFlags, uint32_t lastICMask, uint8_t noOfParallelModules, uint32_t dieTemperature[]) {
 	// Variables
 	uint32_t newVoltageUnder = 0;
 	uint32_t newVoltageOver  = 0;
@@ -301,7 +301,7 @@ bool driverSWLTC6804ReadVoltageFlags(uint32_t *underVoltageFlags, uint32_t *over
 	
 	// Combine it
 	for(uint8_t modulePointer = 0; modulePointer < driverSWLTC6804TotalNumberOfICs; modulePointer++) {
-		
+		dieTemperature[modulePointer] = driverSWLTC6804StatusStruct[modulePointer].dieTemperature;
 		//if we have a different number of cells monitored in the last IC, disable error bits with mask
 		if((modulePointer+1) % (driverSWLTC6804TotalNumberOfICs/noOfParallelModules)   == 0 && modulePointer != 0){
 					driverSWLTC6804StatusStruct[modulePointer].underVoltage &= lastICMask;

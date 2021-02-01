@@ -166,6 +166,8 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 
 bool modPowerElectronicsTask(void) {
 	bool returnValue = false;
+	// Static variable for SHT measure timer
+
 	
 	if(modDelayTick1ms(&modPowerElectronicsMeasureIntervalLastTick,100)) {
 		// reset tick for LTC Temp start conversion delay
@@ -188,9 +190,19 @@ bool modPowerElectronicsTask(void) {
 		
 		// get PCB mounted temperature sensor
 		#ifdef HWVersion_SS
+			static uint32_t measureSHTStartLastTick          = 0;
+			static driverSWSHT21MeasureType lastMeasuredType = TEMP;
 			if(driverSWSHT21PollMeasureReady()){
 				modPowerElectronicsPackStateHandle->temperatures[0] = driverSWSHT21GetTemperature();
 				modPowerElectronicsPackStateHandle->humidity        = driverSWSHT21GetHumidity();
+			}
+			if(modDelayTick1ms(&measureSHTStartLastTick,500)){
+				driverSWSHT21StartMeasurement(lastMeasuredType);
+		
+			if(lastMeasuredType == TEMP)																																							// Toggle between SHT21 sensor modes
+				lastMeasuredType = HUMIDITY;
+			else
+				lastMeasuredType = TEMP;
 		}
 		#else
 			driverHWADCGetNTCValue(&modPowerElectronicsPackStateHandle->temperatures[0],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupMasterPCB],25.0f);
@@ -538,7 +550,7 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	
 	//Handle cooling output
-	#ifndef ENNOID_SS
+	#ifndef HWVersion_SS
 	if(modPowerElectronicsPackStateHandle->coolingDesired && modPowerElectronicsPackStateHandle->coolingAllowed)
 		driverHWSwitchesSetSwitchState(SWITCH_COOLING,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	else
@@ -1035,7 +1047,7 @@ void modPowerElectronicsCellMonitorsEnableBalanceResistorsArray(){
 
 void modPowerElectronicsCellMonitorsReadVoltageFlags(uint32_t *underVoltageFlags, uint32_t *overVoltageFlags){
 	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
-	driverSWLTC6804ReadVoltageFlags(underVoltageFlags,overVoltageFlags, modPowerElectronicsGeneralConfigHandle->lastICMask, modPowerElectronicsGeneralConfigHandle->noOfParallelModules);
+	driverSWLTC6804ReadVoltageFlags(underVoltageFlags,overVoltageFlags, modPowerElectronicsGeneralConfigHandle->lastICMask, modPowerElectronicsGeneralConfigHandle->noOfParallelModules, modPowerElectronicsPackStateHandle->dieTemperature);
 }
 
 void modPowerElectronicsCellMonitorsCheckAndSolveInitState(void){

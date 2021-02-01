@@ -7,11 +7,8 @@ ADC_HandleTypeDef hadc1;
 const driverHWADCPortStruct driverHWADCPorts[NoOfADCPorts] = 								// Hold all I2C pin configuration data
 {
 	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_1,GPIO_MODE_ANALOG,GPIO_NOPULL,0x00},	// LoadVoltageSense analog pin
-	#ifdef HWVersion_1_2	
 	{GPIOA,RCC_AHBENR_GPIOAEN,GPIO_PIN_0,GPIO_MODE_ANALOG,GPIO_PULLUP,0x00}		// ChargeVoltage analog pin
-#else  																																			// Any other previous version
-	{GPIOA,RCC_AHBENR_GPIOCEN,GPIO_PIN_0,GPIO_MODE_INPUT,GPIO_PULLUP,0x00}		// P_STAT_CHARGE_DETECT
-#endif
+
 };
 
 void driverHWADCInit(void) {
@@ -112,7 +109,6 @@ bool driverHWADCGetNTCValue(float *ntcValue, uint32_t ntcNominal, uint32_t ntcSe
 	uint8_t	 driverHWADCAverageCount;
 	uint16_t driverHWADCAverage;
 	
-#ifdef HWVersion_1_2
 	driverHWADCSetInputChannel(&hadc1,ADC_CHANNEL_1);
 
 	driverHWADCAverageSum = 0;
@@ -136,9 +132,7 @@ bool driverHWADCGetNTCValue(float *ntcValue, uint32_t ntcNominal, uint32_t ntcSe
   steinhart += 1.0f / (ntcNominalTemp + 273.15f);       // + (1/To)
   steinhart = 1.0f / steinhart;                         // Invert
   *ntcValue = steinhart - 273.15f;                      // convert to degree
-#else
-	*ntcValue = 0.0f;
-#endif
+
 
 	return false;
 };

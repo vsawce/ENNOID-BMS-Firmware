@@ -64,9 +64,10 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				break;
 			case DISP_MODE_LOAD:
 				driverSWSSD1306ClearDisplay();
-//				driverSWSSD1306FillBuffer(libLogos[LOGO_LOAD],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);
-//				libGraphicsFillRect(7,7,(uint16_t)(modDisplayData.StateOfCharge/100*106),50,WHITE);
-			
+				if(modDisplayData.DisplayStyle==0){
+					driverSWSSD1306FillBuffer(libLogos[LOGO_LOAD],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);
+					libGraphicsFillRect(7,7,(uint16_t)(modDisplayData.StateOfCharge/100*106),50,WHITE);
+				}else{
 					libGraphicsSetTextSize(2);
 					libGraphicsSetTextColor_0(WHITE);
 		
@@ -167,6 +168,8 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.LowestTemp));
 						}							
 					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.LowestTemp));
+						
+				};
 				break;
 			case DISP_MODE_CHARGE:
 				driverSWSSD1306ClearDisplay();

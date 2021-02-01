@@ -622,6 +622,11 @@ typedef enum {
 } configStateOfChargeMethodEnum;
 
 typedef enum {
+	basic = 0,
+	advanced
+} displayStyle;
+
+typedef enum {
   buzzerSourceOff = 0,
   buzzerSourceOn,
   buzzerSourceAll,

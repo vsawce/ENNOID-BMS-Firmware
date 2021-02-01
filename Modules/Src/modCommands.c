@@ -230,6 +230,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->displayTimeoutBatteryError     = libBufferGet_uint32(data,&ind);                 // 4
 			modCommandsGeneralConfig->displayTimeoutBatteryErrorPreCharge = libBufferGet_uint32(data,&ind);            // 4
 			modCommandsGeneralConfig->displayTimeoutSplashScreen     = libBufferGet_uint32(data,&ind);                 // 4
+		  modCommandsGeneralConfig->displayStyle				           = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->maxUnderAndOverVoltageErrorCount = libBufferGet_uint8(data,&ind);                // 1
 			modCommandsGeneralConfig->maxUnderAndOverTemperatureErrorCount = libBufferGet_uint8(data,&ind);            // 1
 			modCommandsGeneralConfig->notUsedCurrentThreshold        = libBufferGet_float32_auto(data,&ind);           // 4
@@ -344,6 +345,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryError      ,&ind); // 4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutBatteryErrorPreCharge,&ind);//4
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->displayTimeoutSplashScreen      ,&ind); // 4
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->displayStyle				           ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->maxUnderAndOverVoltageErrorCount,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->maxUnderAndOverTemperatureErrorCount,&ind); // 1
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->notUsedCurrentThreshold         ,&ind); // 4

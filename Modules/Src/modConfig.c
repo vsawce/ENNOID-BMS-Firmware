@@ -156,6 +156,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryError								     = 5000;										// Show error symbol for X seconds before going to powerdown in general error state.
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
+	configLocation->displayStyle															     = basic;										// Display style used for showing the SSD1306 data
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
 	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
@@ -257,6 +258,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryError								     = 5000;										// Show error symbol for X seconds before going to powerdown in general error state.
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
+	configLocation->displayStyle															     = basic;										// Display style used for showing the SSD1306 data
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
 	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
@@ -323,13 +325,13 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
 	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
-  configLocation->shuntLCFactor                                  = -0.07f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = -7;                      // Shunt offset low current
-	configLocation->voltageLCFactor	                               = 47.5f;                   // Pack voltage factor 
+  configLocation->shuntLCFactor                                  = -0.0052f;              		// Shunt factor low current
+	configLocation->shuntLCOffset                                  = 2;                       // Shunt offset low current
+	configLocation->voltageLCFactor	                               = 1.35f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
-	configLocation->loadVoltageFactor	                             = 190.0f;                  // Load voltage factor 
-	configLocation->loadVoltageOffset                              = 9.0f;                    // Load voltage offset
-	configLocation->chargerVoltageFactor	                         = 49.2f;                   // Charger voltage factor 
+	configLocation->loadVoltageFactor	                             = 29.8f;                   // Load voltage factor 
+	configLocation->loadVoltageOffset                              = 0.0f;                    // Load voltage offset
+	configLocation->chargerVoltageFactor	                         = 29.8f;                   // Charger voltage factor 
 	configLocation->chargerVoltageOffset                           = 0.0f;                    // Charger voltage offset
 	configLocation->throttleChargeIncreaseRate                     = 1;                       // Percentage charge throttle increase rate per 100ms (cell voltage loop time)  
 	configLocation->throttleDisChargeIncreaseRate                  = 2;                       // Percentage discharge throttle increase rate per 100ms (cell voltage loop time)  	
@@ -359,6 +361,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryError								     = 5000;										// Show error symbol for X seconds before going to powerdown in general error state.
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
+	configLocation->displayStyle															     = basic;										// Display style used for showing the SSD1306 data
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
 	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.

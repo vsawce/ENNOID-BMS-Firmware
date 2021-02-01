@@ -20,6 +20,7 @@
  
 #include "stm32f3xx_hal.h"
 #include "stdbool.h"
+#include "generalDefines.h"
 
 #define NoOfSwitches  6 //7
 
@@ -34,7 +35,7 @@ typedef struct {
 extern const driverHWSwitchesPortStruct driverHWSwitchesPorts[NoOfSwitches];
 
 typedef enum {
-	#ifdef ENNOID_SS
+	#ifdef HWVersion_SS
 	SWITCH_CHARGE_BYPASS = 0,
 	#else
 	SWITCH_COOLING = 0,
@@ -43,8 +44,7 @@ typedef enum {
 	SWITCH_PRECHARGE,
 	SWITCH_DISCHARGE,
 	SWITCH_DISCHARGEHV,
-	SWITCH_SAFETY_OUTPUT//,
-	//SWITCH_CHARGE_BYPASS
+	SWITCH_SAFETY_OUTPUT
 	
 } driverHWSwitchesIDTypedef;
 

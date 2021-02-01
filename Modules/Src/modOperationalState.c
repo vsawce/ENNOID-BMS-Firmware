@@ -233,6 +233,7 @@ void modOperationalStateTask(void) {
 			modOperationalStateDisplayData.HighestTemp = fabs(modOperationalStatePackStatehandle->tempBatteryHigh);
 			modOperationalStateDisplayData.AverageTemp = fabs(modOperationalStatePackStatehandle->tempBatteryAverage);
 			modOperationalStateDisplayData.LowestTemp = fabs(modOperationalStatePackStatehandle->tempBatteryLow);
+			modOperationalStateDisplayData.DisplayStyle = modOperationalStateGeneralConfigHandle->displayStyle;
 			
 			modDisplayShowInfo(DISP_MODE_LOAD,modOperationalStateDisplayData);
 			break;

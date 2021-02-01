@@ -22,7 +22,7 @@
 
 void driverSWISL28022Init(uint8_t i2cAddres, uint8_t i2cBus, driverSWISL28022InitStruct initStruct){
 	// Implementing the fancy driverSWISL28022InitStruct is still on my todo list :).
-	uint8_t writeData[3] = {0x00,0x77,0xFF};
+	uint8_t writeData[3] = {0x00,0x7F,0xFF};
 	
 	if(i2cBus == 1){
 		driverHWI2C1Init();

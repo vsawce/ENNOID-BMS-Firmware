@@ -20,6 +20,7 @@ typedef struct {
 	float LowestCellVoltage;
 	float HighestCellVoltage;
 	float AverageCellVoltage;
+	uint8_t DisplayStyle;
 } modDisplayDataTypedef;
 
 typedef enum {

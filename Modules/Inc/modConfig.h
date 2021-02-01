@@ -92,6 +92,7 @@ typedef struct {
 	uint32_t displayTimeoutBatteryError;																					// Duration of displaying error symbol
 	uint32_t displayTimeoutBatteryErrorPreCharge;																	// Duration of displaying error symbol
 	uint32_t displayTimeoutSplashScreen;																					// Duration of displaying splash screen + First few samples of ADC's
+	uint8_t  displayStyle;                    				                            // Enum value for the SSD1306 display style option used
 	uint8_t  maxUnderAndOverVoltageErrorCount;																		// Threshold that defines max amount of hard over / under voltage errors
 	uint8_t  maxUnderAndOverTemperatureErrorCount;																// Threshold that defines max amount of hard over / under temperature errors
 	float    notUsedCurrentThreshold;																							// Threshold that defines whether or not pack is in use.

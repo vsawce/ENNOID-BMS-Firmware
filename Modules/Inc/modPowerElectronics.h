@@ -34,6 +34,7 @@
 #include "math.h"
 #include "driverSWSHT21.h"
 
+
 #define NoOfCellsPossibleOnBMS	      	180
 #define NoOfCellMonitorsPossibleOnBMS 	10
 
@@ -130,6 +131,7 @@ typedef struct {
 	float    auxModuleVoltages[NoOfCellMonitorsPossibleOnBMS][12];
 	float    expModuleVoltages[NoOfExpMonitorPossibleOnBMS][8];
 	uint32_t cellModuleBalanceResistorEnableMask[NoOfCellMonitorsPossibleOnBMS];
+	uint32_t dieTemperature[NoOfCellMonitorsPossibleOnBMS];
 	
 } modPowerElectronicsPackStateTypedef;
 
