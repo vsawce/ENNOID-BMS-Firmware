@@ -11,7 +11,9 @@
 	Bit order during default CAN messages with Extended ID:
 	Description  | Start | IDA | SRR | IDE | IDB | RTR | RES | DLC | DATA | CRC | CRC Lim | ACK | ACK Lim | EOF |
 	Bits         |   1   | 11  |  1  |  1  |  18 |  1  |  2  |  4  | 0-64 |  15 |    1    |  1  |    1    |  7  |
-	// Most part of the CAN messages are handled over the hardware abstraction layer (HAL) provided by the STM libraries & firmware code.
+	// Most parts of the CAN messages are handled over the hardware abstraction layer (HAL) provided by the STM libraries & firmware code.
+	//Only bits related to ID, DATA, DLC, & CRC are handled directly by the user firmware
+	// RTR == 1, 
 
 //Specific to ENNOID-BMS/DIEBIEMS/VESC 
 	// The ID is splitted in two parts: bits(7-0) = CAN_PACKET_ID & bits(15-8) = Destination ID other bits are unused/available with the current implementation
