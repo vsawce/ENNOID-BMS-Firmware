@@ -4,19 +4,19 @@
 
 // ENNOID-BMS firmware settings for CAN:
 	// CAN speed: Selectable with tool app 125kbit/s, 250kbit/s & 500kbit/s,
-	// CAN ID : Selectable with tool app 1 to 254, correspond to the device specific unique CAN bus adress on the bus
+	// CAN ID : Selectable with tool app 1 to 254, correspond to the device specific unique CAN adress on the bus
 	// ID Style: Selectable with tool app ENNOID/DIEBIEMS/VESC or E-Foiler (Byte order processing, please use ENNOID/DIEBIEMS/VESC for your application)
 
 // CAN protocol: Extended ID
 	Bit order during default CAN messages with Extended ID:
 	Description  | Start | IDA | SRR | IDE | IDB | RTR | RES | DLC | DATA | CRC | CRC Lim | ACK | ACK Lim | EOF |
 	Bits         |   1   | 11  |  1  |  1  |  18 |  1  |  2  |  4  | 0-64 |  15 |    1    |  1  |    1    |  7  |
-	// Most parts of the CAN messages are handled over the hardware abstraction layer (HAL) provided by the STM libraries & firmware code.
+	// Most parts of the CAN messages are handled over the hardware abstraction layer (HAL) provided by the STM libraries & related firmware code.
 	//Only bits related to ID, DATA, DLC, & CRC are handled directly by the user firmware
 	// RTR == 1, 
 
 //Specific to ENNOID-BMS/DIEBIEMS/VESC 
-	// The ID is splitted in two parts: bits(7-0) = CAN_PACKET_ID & bits(15-8) = Destination ID other bits are unused/available with the current implementation
+	// The ID is splitted in two parts: bits(7-0) = CAN_PACKET_ID & bits(15-8) = Destination ID. Other bits are unused/available with the current implementation
 	// CAN_PACKET_ID: See implementation below
 	// Destination ID: This is the adress at which you want your message to be delivered to
 
