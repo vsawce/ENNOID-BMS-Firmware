@@ -44,7 +44,7 @@ void modDisplayInit(void) {
 void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDisplayData) {
 	static modDisplayDataTypedef modDisplayDataLast;
 	
-	if((modDisplayCurrentState != newState) || memcmp(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef))) {											// Different state than last state?
+	if(((modDisplayCurrentState != newState) || memcmp(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef))) && modDelayTick1ms(&modDisplayLastRefresh,REFRESHTIMOUT && newState!=DISP_MODE_SPLASH)) {											// Different state than last state?
 		memcpy(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef));
 		switch(newState) {
 			case DISP_MODE_OFF:
@@ -68,7 +68,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					driverSWSSD1306FillBuffer(libLogos[LOGO_LOAD],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);
 					libGraphicsFillRect(7,7,(uint16_t)(modDisplayData.StateOfCharge/100*106),50,WHITE);
 				}else{
-					libGraphicsSetTextSize(2);
+					libGraphicsSetTextSize(1);
 					libGraphicsSetTextColor_0(WHITE);
 		
 			//Display state of charge
@@ -88,7 +88,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					libGraphicsWrite('%');
 					
 			//Display current
-					libGraphicsSetCursor(0,27);
+					libGraphicsSetCursor(0,17);
 					libGraphicsWrite('I');
 					libGraphicsWrite(':');
 					if(modDisplayData.Current <= 0.0f){
@@ -101,9 +101,9 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.Current));
 						}						 
 					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.Current));	
-						
-			//Display Battery Voltage
-					libGraphicsSetCursor(0,47);
+
+				//Display Battery Voltage
+					libGraphicsSetCursor(0,27);
 					libGraphicsWrite('V');
 					libGraphicsWrite(':');
 					if(modDisplay100ConvertIntegerToASCII(modDisplayData.PackVoltage) !=48){
@@ -112,11 +112,27 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					if(modDisplay10ConvertIntegerToASCII(modDisplayData.PackVoltage)!=48 || modDisplay100ConvertIntegerToASCII(modDisplayData.PackVoltage) != 48){
 							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.PackVoltage));
 						}
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.PackVoltage));	
+					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.PackVoltage));
+	/*					
+				//Display cell Voltage high
+					libGraphicsSetCursor(0,37);
+					libGraphicsWrite('C');
+					libGraphicsWrite('V');
+					libGraphicsWrite('H');
+					libGraphicsWrite(':');
+					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.HighestCellVoltage));
 						
+				//Display cell Voltage low
+					libGraphicsSetCursor(0,47);
+					libGraphicsWrite('C');
+					libGraphicsWrite('V');
+					libGraphicsWrite('L');
+					libGraphicsWrite(':');
+					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.LowestCellVoltage));	
+		*/				
 			//Display Max battery temperature
 					libGraphicsSetTextSize(1);
-					libGraphicsSetCursor(74,27);
+					libGraphicsSetCursor(74,07);
 					libGraphicsWrite('T');
 					libGraphicsWrite('m');
 					libGraphicsWrite('a');
@@ -134,7 +150,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.HighestTemp));
 						
 			//Display Avg battery temperature
-					libGraphicsSetCursor(74,37);
+					libGraphicsSetCursor(74,17);
 					libGraphicsWrite('T');
 					libGraphicsWrite('a');
 					libGraphicsWrite('v');
@@ -152,7 +168,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.AverageTemp));
 						
 				//Display low battery temperature
-					libGraphicsSetCursor(74,47);
+					libGraphicsSetCursor(74,27);
 					libGraphicsWrite('T');
 					libGraphicsWrite('m');
 					libGraphicsWrite('i');
@@ -168,6 +184,20 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.LowestTemp));
 						}							
 					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.LowestTemp));
+				
+				//Display humidity
+					libGraphicsSetCursor(74,37);
+					libGraphicsWrite('H');
+					libGraphicsWrite('u');
+					libGraphicsWrite('m');
+					libGraphicsWrite(':');					
+					if(modDisplay100ConvertIntegerToASCII(modDisplayData.Humidity) !=48){
+							libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.Humidity));	
+						}
+					if(modDisplay10ConvertIntegerToASCII(modDisplayData.Humidity)!=48 || modDisplay100ConvertIntegerToASCII(modDisplayData.Humidity) != 48){
+							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.Humidity));
+						}							
+					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.Humidity));
 						
 				};
 				break;
@@ -287,6 +317,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 			default:
 				break;
 		};
+		modDisplayLastRefresh = HAL_GetTick();
 	}
 	
 	modDisplayCurrentState = newState;

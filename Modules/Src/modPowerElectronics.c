@@ -439,7 +439,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 			modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_CELL_SOFT_OVER_VOLTAGE;
 		}
 		
-		if( modPowerElectronicsPackStateHandle->tempBatteryHigh >= modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMax || modPowerElectronicsPackStateHandle->tempBatteryLow <= modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMin) {
+		if( modPowerElectronicsPackStateHandle->tempBatteryHigh >= modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMax) {
 			modPowerElectronicsPackStateHandle->chargeAllowed = false;
 			modPowerElectronicsChargeRetryLastTick = HAL_GetTick();
 			modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_CHARGE_OVER_TEMP_CELLS;
@@ -1219,10 +1219,10 @@ void modPowerElectronicsSamplePackAndLCData(void) {
 	float tempPackVoltage;
 	
 	modPowerElectronicsSamplePackVoltage(&tempPackVoltage);
+	modPowerElectronicsPackStateHandle->packVoltage = tempPackVoltage;
+	modPowerElectronicsLCSenseSample();
 	
-	if(fabs(tempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 10.0f) {    // If the error is smaller than one 10 volts continue normal operation. 
-		modPowerElectronicsPackStateHandle->packVoltage = tempPackVoltage;
-		modPowerElectronicsLCSenseSample();
+	if(fabs(tempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 0.2f*(modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage)) {    // If the error is different than 20% continue normal operation. 
 		modPowerElectronicsVinErrorCount = 0;																								// Reset error count.
 	}else{																																								// Error in voltage measurement.
 		if(modPowerElectronicsVinErrorCount++ >= VinErrorThreshold){												// Increase error count

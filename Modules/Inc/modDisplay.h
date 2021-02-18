@@ -3,8 +3,8 @@
 #include "libGraphics.h"
 #include "libLogos.h"
 
-#define REFRESHTIMOUT	5000																	// Interval between complete sync between desired and actual display content					
-#define STARTUPDELAY	5																		// Startup delay, wait this amount of time before talking to the display
+#define REFRESHTIMOUT	500																		// Interval between complete sync between desired and actual display content					
+#define STARTUPDELAY	10																		// Startup delay, wait this amount of time before talking to the display
 
 #ifndef MODDISPLAY_H_
 #define MODDISPLAY_H_
@@ -20,6 +20,7 @@ typedef struct {
 	float LowestCellVoltage;
 	float HighestCellVoltage;
 	float AverageCellVoltage;
+	float Humidity;
 	uint8_t DisplayStyle;
 } modDisplayDataTypedef;
 
