@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Communication commands over CAN
 // After CAN message reception, if the Destination ID == CAN ID, the BMS will receive & process the CAN message
+// Broadcast is possible while using the device own CAN ID for transmitting
 // Please note that some VESC specific commands are not implemented for the ENNOID-BMS, but are still included for compatibility purposes
 
 typedef enum {
@@ -38,9 +39,9 @@ typedef enum {
 	CAN_PACKET_ESC_STATUS,
 	CAN_PACKET_ESC_SET_CURRENT_REL,
 	CAN_PACKET_ESC_SET_CURRENT_BRAKE_REL,
-	CAN_PACKET_BMS_STATUS_MAIN_IV = 30,							// 30, Transmit the BMS current, pack voltage 0.5 seconds with modCANSendSimpleStatusSlow(), Destination ID == CANID (broadcasting)
-	CAN_PACKET_BMS_STATUS_CELLVOLTAGE,							// 31, Transmit the BMS cell voltage high & cell voltage low every 0.5 seconds with modCANSendSimpleStatusSlow(), Destination ID == CANID (broadcasting)
-	CAN_PACKET_BMS_STATUS_THROTTLE_CH_DISCH_BOOL, 				// 32, Transmit the desired throttle & BMS status (SOC, load, voltage, booleans) every 0.2 seconds with modCANSendSimpleStatusFast(), Destination ID == CANID (broadcasting)
+	CAN_PACKET_BMS_STATUS_MAIN_IV = 30,							// 30, Transmit the BMS current, pack voltage every 0.5 seconds with modCANSendSimpleStatusSlow(), Destination ID == CANID (broadcasted)
+	CAN_PACKET_BMS_STATUS_CELLVOLTAGE,							// 31, Transmit the BMS cell voltage high & cell voltage low every 0.5 seconds with modCANSendSimpleStatusSlow(), Destination ID == CANID (broadcasted)
+	CAN_PACKET_BMS_STATUS_THROTTLE_CH_DISCH_BOOL, 				// 32, Transmit the desired throttle & BMS status (SOC, load, voltage, booleans) every 0.2 seconds with modCANSendSimpleStatusFast(), Destination ID == CANID (broadcasted)
 	CAN_PACKET_BMS_STATUS_TEMPERATURES,							// 33, To be implemented
 	CAN_PACKET_BMS_STATUS_AUX_IV_SAFETY_WATCHDOG,				// 34, To be implemented
 	CAN_PACKET_BMS_KEEP_ALIVE_SAFETY,							// 35, To be implemented
