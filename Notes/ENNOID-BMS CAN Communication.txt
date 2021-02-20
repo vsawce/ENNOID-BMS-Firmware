@@ -13,7 +13,7 @@
 	Bits         |   1   | 11  |  1  |  1  |  18 |  1  |  2  |  4  | 0-64 |  15 |    1    |  1  |    1    |  7  |
 	// Most parts of the CAN messages are handled over the hardware abstraction layer (HAL) provided by the STM libraries & related firmware code.
 	//Only bits related to ID, DATA, DLC, & CRC are handled directly by the user firmware
-	// RTR == 1, 
+	// RTR == 0, 
 
 //Specific to ENNOID-BMS/DIEBIEMS/VESC 
 	// The ID is splitted in two parts: bits(7-0) = CAN_PACKET_ID & bits(15-8) = Destination ID. Other bits are unused/available with the current implementation
