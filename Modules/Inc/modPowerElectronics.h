@@ -113,6 +113,7 @@ typedef struct {
 	uint8_t  safetyOverCANHCSafeNSafe;
 	uint8_t  chargeCurrentDetected;
 	uint8_t  chargeBalanceActive;
+	uint8_t  balanceActive;
 	uint8_t  powerButtonActuated;
 	uint8_t  packInSOADischarge;
   uint8_t  packInSOACharge;

@@ -328,7 +328,7 @@ void modOperationalStateTask(void) {
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			if(modOperationalStatePackStatehandle->chargeAllowed){
 				modPowerElectronicsSetCharge(true);
-				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < 5.0f && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
+				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10.0f)){ 
 					modPowerElectronicsSetDisCharge(true);
 					if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
 						modPowerElectronicsSetPreCharge(true);
@@ -338,7 +338,6 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetCharge(false);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetPreCharge(false);
-				modOperationalStateSetNewFaultState(FAULT_CODE_NOT_USED_TIMEOUT);
 			};
 			
 			//Cooling/Heating

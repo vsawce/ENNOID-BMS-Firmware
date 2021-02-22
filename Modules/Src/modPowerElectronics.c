@@ -96,6 +96,7 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->coolingAllowed 					 = true;
 	modPowerElectronicsPackStateHandle->safetyOverCANHCSafeNSafe = false;
 	modPowerElectronicsPackStateHandle->chargeBalanceActive      = false;
+	modPowerElectronicsPackStateHandle->balanceActive       		 = false;
 	modPowerElectronicsPackStateHandle->chargeCurrentDetected    = false;
 	modPowerElectronicsPackStateHandle->powerButtonActuated      = false;
 	modPowerElectronicsPackStateHandle->packInSOACharge          = true;
@@ -134,6 +135,8 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 		for(uint8_t expPointer = 0; expPointer < modPowerElectronicsGeneralConfigHandle->noOfTempSensorPerModule; expPointer++)
 			modPowerElectronicsPackStateHandle->expModuleVoltages[modulePointer][expPointer] = 0.0f;
 	}
+	
+	modPowerElectronicsCellMonitorsStartCellConversion();
 
 	// Init the external bus monitor
   modPowerElectronicsInitISL();
@@ -177,7 +180,7 @@ bool modPowerElectronicsTask(void) {
 		modPowerElectronicsSamplePackAndLCData();
 		
 		// Check whether packvoltage is whithin theoretical limits
-		if(modPowerElectronicsPackStateHandle->packVoltage >= (modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage + 1.0f)) {
+		if(modPowerElectronicsPackStateHandle->packVoltage >= (modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage)) {
 			modPowerElectronicsVoltageSenseError = true;
 		}
 		
@@ -362,6 +365,7 @@ void modPowerElectronicsSubTaskBalancing(void) {
 					if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
 						if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart) {
 							modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellBleedActive = true;
+							modPowerElectronicsPackStateHandle->balanceActive = true;
 						}else{
 						  modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellBleedActive = false;
 						}
@@ -373,7 +377,9 @@ void modPowerElectronicsSubTaskBalancing(void) {
 		}else{
 		for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->noOfParallelModules; i++) {
 		modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellBleedActive = false;
+			
 		}
+		modPowerElectronicsPackStateHandle->balanceActive = false;
 	}
 		
 		modPowerElectronicsCallMonitorsCalcBalanceResistorArray();
@@ -952,9 +958,12 @@ void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
 			// Check config valid and reinit
 			// TODO: Implement
 			
-			// Read cell voltages			
+			// Read cell voltages
+			if(!modPowerElectronicsPackStateHandle->balanceActive){
 			driverSWLTC6804ReadCellVoltagesArray(modPowerElectronicsPackStateHandle->cellModuleVoltages);
 			modPowerElectronicsCellMonitorsArrayTranslate();
+			}
+				
 			// Convert modules to full array
 			
 			// Read aux voltages
