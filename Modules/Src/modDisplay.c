@@ -78,13 +78,13 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					libGraphicsWrite('C');
 					libGraphicsWrite(':');
 			
-					if(modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge) !=48){
-						libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge));
+					if(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
+						libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge));
 						}
-					if(modDisplay10ConvertIntegerToASCII(modDisplayData.StateOfCharge) != 48 || modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge) !=48){
-							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.StateOfCharge));
+					if(modDisplay10ConvertValueToASCII(modDisplayData.StateOfCharge) != 48 || modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.StateOfCharge));
 						}		
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.StateOfCharge));	
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.StateOfCharge));	
 					libGraphicsWrite('%');
 					
 			//Display current
@@ -94,45 +94,55 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					if(modDisplayData.Current <= 0.0f){
 							libGraphicsWrite('-');
 						}
-					if(modDisplay100ConvertIntegerToASCII(modDisplayData.Current)!= 48){
-							libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.Current));
+					if(modDisplay100ConvertValueToASCII(modDisplayData.Current)!= 48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.Current));
 						}
-					if(modDisplay10ConvertIntegerToASCII(modDisplayData.Current)!= 48 || modDisplay100ConvertIntegerToASCII(modDisplayData.Current)!= 48){
-						libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.Current));
+					if(modDisplay10ConvertValueToASCII(modDisplayData.Current)!= 48 || modDisplay100ConvertValueToASCII(modDisplayData.Current)!= 48){
+						libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.Current));
 						}						 
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.Current));	
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.Current));	
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.Current));	
 
 				//Display Battery Voltage
 					libGraphicsSetCursor(0,27);
 					libGraphicsWrite('V');
 					libGraphicsWrite(':');
-					if(modDisplay100ConvertIntegerToASCII(modDisplayData.PackVoltage) !=48){
-							libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.PackVoltage));	
+					if(modDisplay100ConvertValueToASCII(modDisplayData.PackVoltage) !=48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.PackVoltage));	
 						}
-					if(modDisplay10ConvertIntegerToASCII(modDisplayData.PackVoltage)!=48 || modDisplay100ConvertIntegerToASCII(modDisplayData.PackVoltage) != 48){
-							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.PackVoltage));
+					if(modDisplay10ConvertValueToASCII(modDisplayData.PackVoltage)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.PackVoltage) != 48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.PackVoltage));
 						}
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.PackVoltage));
-	/*					
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.PackVoltage));
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.PackVoltage));
+						
 				//Display cell Voltage high
 					libGraphicsSetCursor(0,37);
 					libGraphicsWrite('C');
 					libGraphicsWrite('V');
 					libGraphicsWrite('H');
 					libGraphicsWrite(':');
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.HighestCellVoltage));
-						
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.HighestCellVoltage));
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.HighestCellVoltage));
+					libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.HighestCellVoltage));
+					libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.HighestCellVoltage));
 				//Display cell Voltage low
 					libGraphicsSetCursor(0,47);
 					libGraphicsWrite('C');
 					libGraphicsWrite('V');
 					libGraphicsWrite('L');
 					libGraphicsWrite(':');
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.LowestCellVoltage));	
-		*/				
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
+					libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
+					libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.LowestCellVoltage));
 			//Display Max battery temperature
 					libGraphicsSetTextSize(1);
-					libGraphicsSetCursor(74,07);
+					libGraphicsSetCursor(70,07);
 					libGraphicsWrite('T');
 					libGraphicsWrite('m');
 					libGraphicsWrite('a');
@@ -141,16 +151,18 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					if(modDisplayData.HighestTemp <= 0.0f){
 							libGraphicsWrite('-');
 						}
-					if(modDisplay100ConvertIntegerToASCII(modDisplayData.HighestTemp) !=48){
-							libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.HighestTemp));	
+					if(modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp) !=48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp));	
 						}
-					if(modDisplay10ConvertIntegerToASCII(modDisplayData.HighestTemp)!=48 || modDisplay100ConvertIntegerToASCII(modDisplayData.HighestTemp) != 48){
-							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.HighestTemp));
+					if(modDisplay10ConvertValueToASCII(modDisplayData.HighestTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp) != 48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.HighestTemp));
 						}							
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.HighestTemp));
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.HighestTemp));
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.HighestTemp));
 						
 			//Display Avg battery temperature
-					libGraphicsSetCursor(74,17);
+					libGraphicsSetCursor(70,17);
 					libGraphicsWrite('T');
 					libGraphicsWrite('a');
 					libGraphicsWrite('v');
@@ -159,16 +171,18 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					if(modDisplayData.AverageTemp <= 0.0f){
 							libGraphicsWrite('-');
 						}						
-					if(modDisplay100ConvertIntegerToASCII(modDisplayData.AverageTemp) !=48){
-							libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.AverageTemp));	
+					if(modDisplay100ConvertValueToASCII(modDisplayData.AverageTemp) !=48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.AverageTemp));	
 						}
-					if(modDisplay10ConvertIntegerToASCII(modDisplayData.AverageTemp)!=48 || modDisplay100ConvertIntegerToASCII(modDisplayData.AverageTemp) != 48){
-							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.AverageTemp));
+					if(modDisplay10ConvertValueToASCII(modDisplayData.AverageTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.AverageTemp) != 48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.AverageTemp));
 						}							
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.AverageTemp));
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.AverageTemp));
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.AverageTemp));
 						
 				//Display low battery temperature
-					libGraphicsSetCursor(74,27);
+					libGraphicsSetCursor(70,27);
 					libGraphicsWrite('T');
 					libGraphicsWrite('m');
 					libGraphicsWrite('i');
@@ -177,27 +191,31 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 					if(modDisplayData.LowestTemp <= 0.0f){
 							libGraphicsWrite('-');
 						}									
-					if(modDisplay100ConvertIntegerToASCII(modDisplayData.LowestTemp) !=48){
-							libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.LowestTemp));	
+					if(modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp) !=48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp));	
 						}
-					if(modDisplay10ConvertIntegerToASCII(modDisplayData.LowestTemp)!=48 || modDisplay100ConvertIntegerToASCII(modDisplayData.LowestTemp) != 48){
-							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.LowestTemp));
+					if(modDisplay10ConvertValueToASCII(modDisplayData.LowestTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp) != 48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.LowestTemp));
 						}							
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.LowestTemp));
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.LowestTemp));
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.LowestTemp));
 				
 				//Display humidity
-					libGraphicsSetCursor(74,37);
+					libGraphicsSetCursor(70,37);
 					libGraphicsWrite('H');
 					libGraphicsWrite('u');
 					libGraphicsWrite('m');
 					libGraphicsWrite(':');					
-					if(modDisplay100ConvertIntegerToASCII(modDisplayData.Humidity) !=48){
-							libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.Humidity));	
+					if(modDisplay100ConvertValueToASCII(modDisplayData.Humidity) !=48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.Humidity));	
 						}
-					if(modDisplay10ConvertIntegerToASCII(modDisplayData.Humidity)!=48 || modDisplay100ConvertIntegerToASCII(modDisplayData.Humidity) != 48){
-							libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.Humidity));
+					if(modDisplay10ConvertValueToASCII(modDisplayData.Humidity)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.Humidity) != 48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.Humidity));
 						}							
-					libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.Humidity));
+					libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.Humidity));
+					libGraphicsWrite('.');
+					libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.Humidity));
 						
 				};
 				break;
@@ -206,13 +224,13 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				driverSWSSD1306FillBuffer(libLogos[LOGO_CHARGING],SSD1306_LCDHEIGHT*SSD1306_LCDWIDTH/8);
 				libGraphicsSetTextSize(1);
 				libGraphicsSetCursor(15,43);
-				if(modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge) !=48){
-					libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge));
+				if(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
+					libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge));
 				}
-				if(modDisplay10ConvertIntegerToASCII(modDisplayData.StateOfCharge) != 48 || modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge) !=48){
-					libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.StateOfCharge));
+				if(modDisplay10ConvertValueToASCII(modDisplayData.StateOfCharge) != 48 || modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
+					libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.StateOfCharge));
 				}		
-				libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.StateOfCharge));	
+				libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.StateOfCharge));	
 				libGraphicsWrite('%');
 				break;
 			case DISP_MODE_POWEROFF:
@@ -297,13 +315,13 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				libGraphicsWrite('G');
 				libGraphicsSetTextSize(1);
 				libGraphicsSetCursor(15,43);
-				if(modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge) !=48){
-						libGraphicsWrite(modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge));
+				if(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
+						libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge));
 				}
-				if(modDisplay10ConvertIntegerToASCII(modDisplayData.StateOfCharge) != 48 || modDisplay100ConvertIntegerToASCII(modDisplayData.StateOfCharge) !=48){
-						libGraphicsWrite(modDisplay10ConvertIntegerToASCII(modDisplayData.StateOfCharge));
+				if(modDisplay10ConvertValueToASCII(modDisplayData.StateOfCharge) != 48 || modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
+						libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.StateOfCharge));
 				}		
-				libGraphicsWrite(modDisplay1ConvertIntegerToASCII(modDisplayData.StateOfCharge));	
+				libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.StateOfCharge));	
 				libGraphicsWrite('%');
 				break;
 			case DISP_MODE_CHARGED:
@@ -338,21 +356,39 @@ void modDisplayTask(void) {
 		modDisplayPresent = false;
 };
 
-float modDisplay100ConvertIntegerToASCII(float value) {
+float modDisplay100ConvertValueToASCII(float value) {
 		value = (int)value/100;
 		value = value+48;
 	return value;
 };
 
-float modDisplay10ConvertIntegerToASCII(float value) {
+float modDisplay10ConvertValueToASCII(float value) {
 		value = (int)value % 100;
 		value = (int)value/10;
 		value = value+48;
 	return value;
 };
 
-float modDisplay1ConvertIntegerToASCII(float value) {
+float modDisplay1ConvertValueToASCII(float value) {
 		value = (int)value % 10;
+		value = value+48;
+	return value;
+};
+
+float modDisplay0_1ConvertValueToASCII(float value) {
+		value = (int)(value*10.0f) % 10;
+		value = value+48;
+	return value;
+};
+
+float modDisplay0_01ConvertValueToASCII(float value) {
+		value = (int)(value*100.0f) % 10;
+		value = value+48;
+	return value;
+};
+
+float modDisplay0_001ConvertValueToASCII(float value) {
+		value = (int)(value*1000.0f) % 10;
 		value = value+48;
 	return value;
 };

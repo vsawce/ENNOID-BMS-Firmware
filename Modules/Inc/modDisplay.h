@@ -42,7 +42,10 @@ typedef enum {
 void modDisplayInit(void);
 void modDisplayShowInfo(modDisplayInfoType newState,modDisplayDataTypedef modDisplayData);
 void modDisplayTask(void);
-float modDisplay100ConvertIntegerToASCII(float value);
-float modDisplay10ConvertIntegerToASCII(float value);
-float modDisplay1ConvertIntegerToASCII(float value);
+float modDisplay100ConvertValueToASCII(float value);
+float modDisplay10ConvertValueToASCII(float value);
+float modDisplay1ConvertValueToASCII(float value);
+float modDisplay0_1ConvertValueToASCII(float value);
+float modDisplay0_01ConvertValueToASCII(float value);
+float modDisplay0_001ConvertValueToASCII(float value);
 #endif

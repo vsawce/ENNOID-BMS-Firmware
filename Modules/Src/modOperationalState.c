@@ -107,14 +107,14 @@ void modOperationalStateTask(void) {
 			break;
 		case OP_STATE_CHARGING:
 			// If chargeAllowed = false -> operational state balancing
-			if(!modOperationalStatePackStatehandle->chargeAllowed){
+			if(modOperationalStatePackStatehandle->balanceActive){
 				modOperationalStateSetNewState(OP_STATE_BALANCING);	
 			}
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			modPowerElectronicsSetCharge(true);
 			
 			//Allow main contactors to close if load voltage is above pack voltage & below max allowed voltage, that means that the charger is connected to the load
-			if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < 5.0f && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
+			if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
 				modPowerElectronicsSetDisCharge(true);
 				if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
 					modPowerElectronicsSetPreCharge(true);

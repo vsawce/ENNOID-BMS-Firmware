@@ -120,8 +120,10 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBatteryHigh, 1e1, &ind);
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBatteryAverage, 1e1, &ind);
+			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBatteryLow, 1e1, &ind);
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSHigh, 1e1, &ind);
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSAverage, 1e1, &ind);
+			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->tempBMSLow, 1e1, &ind);
 			libBufferAppend_float16(modCommandsSendBuffer, modCommandsGeneralState->humidity, 1e1, &ind);
 			
 			libBufferAppend_uint8(modCommandsSendBuffer, (uint8_t)modCommandsGeneralState->operationalState, &ind);
