@@ -2,18 +2,27 @@
 #include "modDelay.h"
 #include "libGraphics.h"
 #include "libLogos.h"
+#include "driverHWPowerState.h"
 
-#define REFRESHTIMOUT	5000																	// Interval between complete sync between desired and actual display content					
-#define STARTUPDELAY	5																		// Startup delay, wait this amount of time before talking to the display
+#define REFRESHTIMOUT	30																		// Interval between complete sync between desired and actual display content					
+#define STARTUPDELAY	10																		// Startup delay, wait this amount of time before talking to the display
 
 #ifndef MODDISPLAY_H_
 #define MODDISPLAY_H_
 
 typedef struct {
 	float StateOfCharge;
+	float Current;
+	float PackVoltage;
+	float LoadVoltage;
+	float HighestTemp;
+	float AverageTemp;
+	float LowestTemp;
 	float LowestCellVoltage;
 	float HighestCellVoltage;
 	float AverageCellVoltage;
+	float Humidity;
+	uint8_t DisplayStyle;
 } modDisplayDataTypedef;
 
 typedef enum {
@@ -34,5 +43,10 @@ typedef enum {
 void modDisplayInit(void);
 void modDisplayShowInfo(modDisplayInfoType newState,modDisplayDataTypedef modDisplayData);
 void modDisplayTask(void);
-
+float modDisplay100ConvertValueToASCII(float value);
+float modDisplay10ConvertValueToASCII(float value);
+float modDisplay1ConvertValueToASCII(float value);
+float modDisplay0_1ConvertValueToASCII(float value);
+float modDisplay0_01ConvertValueToASCII(float value);
+float modDisplay0_001ConvertValueToASCII(float value);
 #endif

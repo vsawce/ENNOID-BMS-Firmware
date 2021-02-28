@@ -1,17 +1,12 @@
-#ifndef __DRIVERSWISL28022_H
-#define __DRIVERSWISL28022_H
+#ifndef __DRIVERSWINA238_H
+#define __DRIVERSWINA238_H
 
 #include "driverHWI2C2.h"
 #include "driverHWI2C1.h"
-#include "generalDefines.h"
 
-#ifdef HWVersion_SS
-#define ISL28022_MASTER_ADDRES      0x45
-#else
-#define ISL28022_MASTER_ADDRES      0x40
-#endif
+#define INA238_MASTER_ADDRES      0x45
+#define INA238_MASTER_BUS         2
 
-#define ISL28022_MASTER_BUS         2
 typedef enum {
 	BRNG_16V = 0,
 	BRNG_32V,
@@ -54,15 +49,22 @@ typedef enum {
 
 typedef enum {
 	REG_CONFIG = 0,
-	REG_SHUNTVOLTAGE,
-	REG_BUSVOLTAGE,
-	REG_POWER,
+	REG_ADCCONFIG,
+	REG_CURRLSBCALC,
+	REG_VSHUNT,
+	REG_VBUS,
+	REG_DIETEMP,
 	REG_CURRENT,
-	REG_CALIBRATION,
-	REG_SHUNTVOLTAGE_THRESHOLD,
-	REG_BUSVOLTAGE_THRESHOLD,
-	REG_DCS_INTERRUPT_STATUS,
-	REG_AUX_CONTROL
+	REG_POWER,
+	REG_DIAG_ALERT = 11,
+	REG_SOVL,
+	REG_SUVL,
+	REG_BOVL,
+	REG_BUVL,
+	REG_TEMP_LIMIT,
+	REG_PWR_LIMIT,
+	REG_MANUFACTURER_ID = 62,
+	REG_DEVICE_ID
 } driverSWISL28022Registers;
 
 typedef struct {
@@ -72,8 +74,8 @@ typedef struct {
 	uint8_t Mode;
 } driverSWISL28022InitStruct;
 
-void driverSWISL28022Init(uint8_t i2cAddres, uint8_t i2cBus, driverSWISL28022InitStruct initStruct);
-bool driverSWISL28022GetBusCurrent(uint8_t i2cAddres, uint8_t i2cBus, float *busCurrent, int16_t offset, float scalar);
-bool driverSWISL28022GetBusVoltage(uint8_t i2cAddres, uint8_t i2cBus, float *busVoltage, int16_t offset, float scalar);
+void driverSWINA238Init(uint8_t i2cAddres, uint8_t i2cBus, driverSWISL28022InitStruct initStruct);
+bool driverSWINA238GetBusCurrent(uint8_t i2cAddres, uint8_t i2cBus, float *busCurrent, int16_t offset, float scalar);
+bool driverSWINA238GetBusVoltage(uint8_t i2cAddres, uint8_t i2cBus, float *busVoltage, int16_t offset, float scalar);
 
 #endif

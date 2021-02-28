@@ -1,14 +1,34 @@
+/*
+	Copyright 2017 - 2018 Danny Bokma	danny@diebie.nl
+	Copyright 2019 - 2020 Kevin Dionne	kevin.dionne@ennoid.me
+
+	This file is part of the DieBieMS/ENNOID-BMS firmware.
+
+	The DieBieMS/ENNOID-BMS firmware is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The DieBieMS/ENNOID-BMS firmware is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
 #include "modStateOfCharge.h"
 
 modStateOfChargeStructTypeDef modStateOfChargeGeneralStateOfCharge;
-modPowerElectricsPackStateTypedef *modStateOfChargePackStatehandle;
+modPowerElectronicsPackStateTypedef *modStateOfChargePackStatehandle;
 modConfigGeneralConfigStructTypedef *modStateOfChargeGeneralConfigHandle;
 uint32_t modStateOfChargeLargeCoulombTick;
 uint32_t modStateOfChargeStoreSoCTick;
 
 bool modStateOfChargePowerDownSavedFlag = false;
 
-modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectricsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
+modStateOfChargeStructTypeDef* modStateOfChargeInit(modPowerElectronicsPackStateTypedef *packState, modConfigGeneralConfigStructTypedef *generalConfigPointer){
 	modStateOfChargePackStatehandle = packState;
 	modStateOfChargeGeneralConfigHandle = generalConfigPointer;
 	driverSWStorageManagerStateOfChargeStructSize = (sizeof(modStateOfChargeStructTypeDef)/sizeof(uint16_t)); // Calculate the space needed for the config struct in EEPROM
@@ -55,9 +75,9 @@ bool modStateOfChargeStoreAndLoadDefaultStateOfCharge(void){
 	if(driverSWStorageManagerStateOfChargeEmpty){
 		// TODO: SoC manager is empy -> Determin SoC from voltage when voltages are available.
 		modStateOfChargeStructTypeDef defaultStateOfCharge;
-		defaultStateOfCharge.generalStateOfCharge = 0.0f;
-		defaultStateOfCharge.generalStateOfHealth = 0.0f;
-		defaultStateOfCharge.remainingCapacityAh = 0.0f;
+		defaultStateOfCharge.generalStateOfCharge = 100.0f;
+		defaultStateOfCharge.generalStateOfHealth = 100.0f;
+		defaultStateOfCharge.remainingCapacityAh = modStateOfChargeGeneralConfigHandle->batteryCapacity;
 		defaultStateOfCharge.remainingCapacityWh = 0.0f;
 		
 		driverSWStorageManagerStateOfChargeEmpty = false;

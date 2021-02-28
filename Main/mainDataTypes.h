@@ -1,27 +1,31 @@
 /*
 	Copyright 2016 Benjamin Vedder	benjamin@vedder.se
+	Copyright 2017 - 2018 Danny Bokma	danny@diebie.nl
+	Copyright 2019 - 2020 Kevin Dionne	kevin.dionne@ennoid.me
 
-	This file is part of the VESC firmware.
+	This file is part of the DieBieMS/ENNOID-BMS firmware.
 
-	The VESC firmware is free software: you can redistribute it and/or modify
+	The DieBieMS/ENNOID-BMS firmware is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    The VESC firmware is distributed in the hope that it will be useful,
+    The DieBieMS/ENNOID-BMS firmware is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    */
+ */
+
 
 #ifndef DATATYPES_H_
 #define DATATYPES_H_
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "dataHelper.h"
 
 #define systime_t uint32_t													// was not here
 
@@ -64,13 +68,32 @@ typedef enum {
 
 typedef enum {
 	FAULT_CODE_NONE = 0,
-	FAULT_CODE_OVER_VOLTAGE,
-	FAULT_CODE_UNDER_VOLTAGE,
-	FAULT_CODE_DRV,
-	FAULT_CODE_ABS_OVER_CURRENT,
-	FAULT_CODE_OVER_TEMP_FET,
-	FAULT_CODE_OVER_TEMP_MOTOR
-} mc_fault_code;
+	FAULT_CODE_PACK_OVER_VOLTAGE,
+	FAULT_CODE_PACK_UNDER_VOLTAGE,
+	FAULT_CODE_LOAD_OVER_VOLTAGE,
+	FAULT_CODE_LOAD_UNDER_VOLTAGE,
+	FAULT_CODE_CHARGER_OVER_VOLTAGE,
+	FAULT_CODE_CHARGER_UNDER_VOLTAGE,
+	FAULT_CODE_CELL_HARD_OVER_VOLTAGE,
+	FAULT_CODE_CELL_HARD_UNDER_VOLTAGE,
+	FAULT_CODE_CELL_SOFT_OVER_VOLTAGE,
+	FAULT_CODE_CELL_SOFT_UNDER_VOLTAGE,
+	FAULT_CODE_MAX_UVP_OVP_ERRORS,
+	FAULT_CODE_MAX_UVT_OVT_ERRORS,
+	FAULT_CODE_OVER_CURRENT,
+	FAULT_CODE_OVER_TEMP_BMS,
+	FAULT_CODE_UNDER_TEMP_BMS,
+	FAULT_CODE_DISCHARGE_OVER_TEMP_CELLS,
+	FAULT_CODE_DISCHARGE_UNDER_TEMP_CELLS,
+	FAULT_CODE_CHARGE_OVER_TEMP_CELLS,
+	FAULT_CODE_CHARGE_UNDER_TEMP_CELLS,
+	FAULT_CODE_PRECHARGE_TIMEOUT,
+	FAULT_CODE_DISCHARGE_RETRY,
+	FAULT_CODE_CHARGE_RETRY,
+	FAULT_CODE_CAN_DELAYED_POWER_DOWN,
+	FAULT_CODE_NOT_USED_TIMEOUT,
+	FAULT_CODE_CHARGER_DISCONNECT
+} bms_fault_state;
 
 typedef enum {
 	CONTROL_MODE_DUTY = 0,
@@ -468,7 +491,10 @@ typedef enum {
 	COMM_CUSTOM_APP_DATA,
 	COMM_NRF_START_PAIRING,
   COMM_STORE_BMS_CONF = 50,
-  COMM_GET_BMS_CELLS
+  COMM_GET_BMS_CELLS,
+	COMM_GET_BMS_AUX,
+	COMM_GET_BMS_EXP_TEMP,
+	COMM_PING_CAN
 } COMM_PACKET_ID;
 
 typedef enum {
@@ -491,6 +517,13 @@ typedef enum {
 	OP_STATE_FORCEON,												// 11
 } OperationalStateTypedef;
 
+typedef enum {
+	opInit = 0,
+	opChargerReset,
+	opChargerSet,
+	opCharging
+} ChargerStateTypedef;
+
 // CAN commands
 typedef enum {
 	CAN_PACKET_ESC_SET_DUTY = 0,
@@ -511,6 +544,7 @@ typedef enum {
 	CAN_PACKET_BMS_STATUS_TEMPERATURES,
 	CAN_PACKET_BMS_STATUS_AUX_IV_SAFETY_WATCHDOG,
 	CAN_PACKET_BMS_KEEP_ALIVE_SAFETY,
+	CAN_PACKET_BMS_STATUS_TEMP_INDIVIDUAL,
 	CAN_PACKET_SLS_STATUS_CURRENT_RPM = 40,
 	CAN_PACKET_SLS_STATUS_TEMPERATURE,
 	CAN_PACKET_SSR_STATUS_MAIN_V_TEMP = 60,
@@ -542,5 +576,108 @@ typedef enum {
 	NRF_PAIR_OK,
 	NRF_PAIR_FAIL
 } NRF_PAIR_RES;
+
+typedef enum {
+	CELL_MON_NONE = 0,
+	CELL_MON_LTC6811_1,
+	CELL_MON_LTC6812_1,
+	CELL_MON_LTC6813_1
+} configCellMonitorICTypeEnum;
+
+typedef enum {
+  opStateExternal = 0,
+	opStateExtNormal
+} configExtEnableStateTypeEnum;
+
+typedef enum {
+  opStateChargingModeCharging = 0,
+	opStateChargingModeNormal
+} configChargerEnableStateTypeEnum;
+
+typedef enum {
+  canSpeedBaud125k = 0,
+	canSpeedBaud250k,
+	canSpeedBaud500k
+} configCANSpeedTypeEnum;
+
+typedef enum {
+	sourcePackVoltageNone = 0,
+	sourcePackVoltageISL28022_2_BatteryIn,
+  sourcePackVoltageSumOfIndividualCellVoltages,
+  sourcePackVoltageCANDieBieShunt,
+  sourcePackVoltageCANIsabellenhutte
+} configPackVoltageDataSourceEnum;
+
+typedef enum {
+	sourcePackCurrentNone = 0,
+	sourcePackCurrentLowCurrentShunt,
+	sourcePackCurrentCANDieBieShunt,
+	sourcePackCurrentCANIsaBellenHuette
+} configPackCurrentDataSourceEnum;
+
+typedef enum {
+	socNone = 0,
+	socCoulomb,
+	socCoulombAndCellVoltage
+} configStateOfChargeMethodEnum;
+
+typedef enum {
+	basic = 0,
+	advanced
+} displayStyle;
+
+typedef enum {
+  buzzerSourceOff = 0,
+  buzzerSourceOn,
+  buzzerSourceAll,
+  buzzerSourceLC,
+  buzzerSourceSOA	
+} buzzerSignalSourceEnum;
+
+typedef enum {
+  buzzerSignalTypeOff = 0,
+  buzzerSignalTypeOn,
+  buzzerSignalTypeToggle,
+  buzzerSignalTypeToggleFast,
+  buzzerSignalTypePulseShort,
+  buzzerSignalTypePulseLong,
+  buzzerSignalTypePulse200_20,
+  buzzerSignalTypePulse1000_4	
+} buzzerSignalType;
+
+typedef enum {
+	canEmitProtocolNone = 0,
+  canEmitProtocolDieBieEngineering,
+	canEmitProtocolMGElectronics
+} canEmitProtocol;
+
+typedef struct {
+	float   cellVoltage;
+	uint8_t cellNumber;
+	bool    cellBleedActive;
+} cellMonitorCellsTypeDef;
+
+typedef struct {
+	float   auxVoltage;
+	uint8_t auxNumber;
+} auxMonitorTypeDef;
+
+typedef struct {
+	float   expVoltage;
+	uint8_t expNumber;
+} expMonitorTypeDef;
+
+typedef struct {
+  float    voltages[12];
+	uint16_t balanceMask;
+	float    temperatures[8];
+	float    humidity;
+} cellMonitorModuleTypeDef;
+
+typedef enum {
+	disabled = 0,
+	enabled,
+	forced // For specific hardware with negative main contactor as precharge circuit
+} switchState;
 
 #endif /* DATATYPES_H_ */
