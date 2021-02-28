@@ -2,8 +2,9 @@
 #include "modDelay.h"
 #include "libGraphics.h"
 #include "libLogos.h"
+#include "driverHWPowerState.h"
 
-#define REFRESHTIMOUT	500																		// Interval between complete sync between desired and actual display content					
+#define REFRESHTIMOUT	30																		// Interval between complete sync between desired and actual display content					
 #define STARTUPDELAY	10																		// Startup delay, wait this amount of time before talking to the display
 
 #ifndef MODDISPLAY_H_
