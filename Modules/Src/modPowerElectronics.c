@@ -462,7 +462,7 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 			if(modDelayTick1ms(&modPowerElectronicsDisChargeLCRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutDischargeRetry)){
 				modPowerElectronicsPackStateHandle->disChargeLCAllowed = true;
 			}else{
-				//modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
+				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
 			}
 		}
 		//Enable charge
@@ -470,17 +470,15 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 			if(modDelayTick1ms(&modPowerElectronicsChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutChargeRetry)){
 				modPowerElectronicsPackStateHandle->chargeAllowed = true;
 			}else{
-				//modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_CHARGE_RETRY;
+				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_CHARGE_RETRY;
 			}
 		}
 		
 		//Handle cooling 
 		if(modPowerElectronicsPackStateHandle->tempBatteryHigh <= modPowerElectronicsGeneralConfigHandle->allowedTempBattCoolingMax && modPowerElectronicsPackStateHandle->tempBatteryLow >= modPowerElectronicsGeneralConfigHandle->allowedTempBattCoolingMin){
 			modPowerElectronicsPackStateHandle->coolingAllowed = false;
-			modPowerElectronicsDisChargeLCRetryLastTick = HAL_GetTick();
 		}else{
 			modPowerElectronicsPackStateHandle->coolingAllowed = true;
-			modPowerElectronicsChargeRetryLastTick = HAL_GetTick();
 		};
 		
 		//Status

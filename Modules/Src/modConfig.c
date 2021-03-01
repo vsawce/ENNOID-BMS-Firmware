@@ -349,9 +349,9 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->minimalPrechargePercentage								     = 0.90f;										// output should be at a minimal of 80% of input voltage.
 	configLocation->timeoutLCPreCharge												     = 1.5*1000;								// Precharge error timeout, allow 1.5 seconds pre-charge time before declaring load error.
 	configLocation->maxAllowedCurrent													     = 1000.0f;									// Allow max XXXA trough BMS.
-	configLocation->allowedTempBattDischargingMax                  = 75.0f;                   // Max battery temperature where discharging is still allowed
+	configLocation->allowedTempBattDischargingMax                  = 105.0f;                   // Max battery temperature where discharging is still allowed
 	configLocation->allowedTempBattDischargingMin                  = 0.0f;                    // Min battery temperature where discharging is still allowed
-	configLocation->allowedTempBattChargingMax                     = 50.0f;                   // Max battery temperature where charging is still allowed
+	configLocation->allowedTempBattChargingMax                     = 105.0f;                   // Max battery temperature where charging is still allowed
 	configLocation->allowedTempBattChargingMin                     = 0.0f;                    // Min battery temperature where charging is still allowed
 	configLocation->allowedTempBattCoolingMax                      = 5.0f;                    // Max battery temperature where cooling is activated
 	configLocation->allowedTempBattCoolingMin                      = 50.0f;                   // Min battery temperature where heating is activated
@@ -381,7 +381,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->noOfTempSensorPerExpansionBoard          			 = 0;												// Number of temperature sensors monitored per expansion board
 	configLocation->LCUseDischarge                                 = enabled;                 // Enable or disable the solid state output
 	configLocation->LCUsePrecharge                                 = enabled;              		// Use precharge before enabling main output
-	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
+	configLocation->allowChargingDuringDischarge                   = false;                    // Allow the battery to be charged in normal mode
 	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
 	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
 	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN

@@ -97,7 +97,7 @@ void modOperationalStateTask(void) {
 			
 			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimeoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
 				if(!modOperationalStatePackStatehandle->disChargeLCAllowed && !modPowerStateChargerDetected()) {						// If discharge is not allowed
-					modOperationalStateSetNewState(OP_STATE_BATTERY_DEAD);							// Then the battery is dead
+					modOperationalStateSetNewState(OP_STATE_ERROR);							// Then the battery is dead
 					modOperationalStateBatteryDeadDisplayTime = HAL_GetTick();
 				}
 				modOperationalStateUpdateStates();																		// Sync states
@@ -129,6 +129,8 @@ void modOperationalStateTask(void) {
 			
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
+			modOperationalStateDisplayData.Current = fabs(modOperationalStatePackStatehandle->packCurrent);
+			modOperationalStateDisplayData.ChargerVoltage = fabs(modOperationalStatePackStatehandle->chargerVoltage);
 			modDisplayShowInfo(DISP_MODE_CHARGE,modOperationalStateDisplayData);
 			break;
 		case OP_STATE_PRE_CHARGE:
@@ -287,7 +289,9 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
+			modOperationalStateDisplayData.FaultCode = modOperationalStatePackStatehandle->faultState;
 			modDisplayShowInfo(DISP_MODE_ERROR,modOperationalStateDisplayData);
+
 			break;
 		case OP_STATE_ERROR_PRECHARGE:
 			// Go to save state and in the future -> try to handle error situation
@@ -349,6 +353,7 @@ void modOperationalStateTask(void) {
 			
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
+			modOperationalStateDisplayData.CellMismatch = fabs(modOperationalStatePackStatehandle->cellVoltageMisMatch);
 			modDisplayShowInfo(DISP_MODE_BALANCING,modOperationalStateDisplayData);
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
 			break;

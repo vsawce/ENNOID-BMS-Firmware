@@ -27,6 +27,7 @@ uint32_t toggleButtonPressedLastTick;
 bool     modDisplayPresent;
 uint8_t modDisplayDispLoadShuffle;
 bool toggleButtonPressed;
+bool toggleButtonReleased;
 bool toggleButtonPressedCounter;
 
 extern modDisplayDataTypedef modDisplayData;
@@ -51,17 +52,16 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 	static modDisplayDataTypedef modDisplayDataLast;
 	
 	toggleButtonPressed = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
-	
-		if(toggleButtonPressed && modDelayTick1msNoRST(&toggleButtonPressedLastTick,500)){
-			toggleButtonPressedCounter = true;
-			
-		}		
-		if(toggleButtonPressedCounter && modDelayTick1ms(&toggleButtonPressedLastTick,500)){
+		if(toggleButtonPressed == 0){
+			toggleButtonReleased = 1 ;
+		}
+
+		if(toggleButtonPressed && toggleButtonReleased && modDelayTick1ms(&toggleButtonPressedLastTick,500)){
 			toggleButtonPressedLastTick = HAL_GetTick();
 			modDisplayDispLoadShuffle++;
-			
-		}
-		
+			toggleButtonReleased = 0;
+			toggleButtonPressedCounter = true;
+		}	
 		
 		if(modDisplayDispLoadShuffle == 9)
 				modDisplayDispLoadShuffle = 0;
