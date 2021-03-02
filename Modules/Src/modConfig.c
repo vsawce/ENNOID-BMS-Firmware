@@ -361,7 +361,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryError								     = 5000;										// Show error symbol for X seconds before going to powerdown in general error state.
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
-	configLocation->displayStyle															     = basic;										// Display style used for showing the SSD1306 data
+	configLocation->displayStyle															     = advanced;								// Display style used for showing the SSD1306 data
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
 	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
@@ -376,7 +376,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->tempEnableMaskBMS                              = 0x0001;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0xFFFF;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->tempEnableMaskExpansion                         = 0xFFFF;									// Bitwise select what sensor to enable for the battery (external sensors).
-	configLocation->noOfTempSensorPerModule            						 = 1;												// Number of temperature sensors monitored per LTC68XX
+	configLocation->noOfTempSensorPerModule            						 = 0;												// Number of temperature sensors monitored per LTC68XX
 	configLocation->noOfExpansionBoard       							   			 = 0;												// Number of expansion board
 	configLocation->noOfTempSensorPerExpansionBoard          			 = 0;												// Number of temperature sensors monitored per expansion board
 	configLocation->LCUseDischarge                                 = enabled;                 // Enable or disable the solid state output

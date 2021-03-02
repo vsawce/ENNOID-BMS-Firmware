@@ -197,10 +197,11 @@ void modOperationalStateTask(void) {
 			
 			// Battery is empty or battery temp is out of range?
 			if(!modOperationalStatePackStatehandle->disChargeLCAllowed) {							
-				modOperationalStateSetNewState(OP_STATE_ERROR);
-				modOperationalStatePackStatehandle->faultState = FAULT_CODE_PACK_UNDER_VOLTAGE;
+				//modOperationalStateSetNewState(OP_STATE_ERROR);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetCharge(false);
+				modOperationalStatePackStatehandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
+				
 			}
 
 			
@@ -216,7 +217,7 @@ void modOperationalStateTask(void) {
 				modOperationalStatePackStatehandle->powerDownDesired = true;
 			}
 			
-			if(modOperationalStatePackStatehandle->chargeBalanceActive) {
+			if(modOperationalStatePackStatehandle->balanceActive) {
 				if(!modOperationalStatePackStatehandle->chargeAllowed && (modOperationalStatePackStatehandle->cellVoltageMisMatch < modOperationalStateGeneralConfigHandle->maxMismatchThreshold)){
 					if(modDelayTick1ms(&modOperationalStateChargedTimeout,modOperationalStateGeneralConfigHandle->timeoutChargingCompletedMinimalMismatch)) {
 						modStateOfChargeVoltageEvent(EVENT_FULL);
@@ -342,6 +343,7 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetCharge(false);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetPreCharge(false);
+				modOperationalStatePackStatehandle->faultState = FAULT_CODE_CHARGE_RETRY;
 			};
 			
 			//Cooling/Heating
@@ -354,6 +356,7 @@ void modOperationalStateTask(void) {
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
 			modOperationalStateDisplayData.CellMismatch = fabs(modOperationalStatePackStatehandle->cellVoltageMisMatch);
+			modOperationalStateDisplayData.AverageCellVoltage = fabs(modOperationalStatePackStatehandle->cellVoltageAverage);
 			modDisplayShowInfo(DISP_MODE_BALANCING,modOperationalStateDisplayData);
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
 			break;

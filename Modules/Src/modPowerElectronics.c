@@ -52,6 +52,9 @@ uint32_t modPowerElectronicsSOADisChargeChangeLastTick;
 uint32_t chargeIncreaseIntervalTime;
 
 uint16_t  calculatedChargeThrottle = 0;
+float initCurrentOffset = 0.0f;
+//float initCurrentOffsetTemp = 0.0f;
+uint8_t initCurrentOffsetCounter = 0;
 
 //uint32_t hardUnderVoltageFlags, hardOverVoltageFlags;
 
@@ -159,7 +162,6 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	
 	// Sample the first pack voltage moment
 	driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packVoltage,modPowerElectronicsGeneralConfigHandle->voltageLCOffset, modPowerElectronicsGeneralConfigHandle->voltageLCFactor);
-	
 
 	
 	// Register terminal commands
@@ -461,16 +463,14 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisDischarge) && modPowerElectronicsPackStateHandle->tempBatteryHigh <= modPowerElectronicsGeneralConfigHandle->allowedTempBattDischargingMax && modPowerElectronicsPackStateHandle->tempBatteryLow >= modPowerElectronicsGeneralConfigHandle->allowedTempBattDischargingMin) {
 			if(modDelayTick1ms(&modPowerElectronicsDisChargeLCRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutDischargeRetry)){
 				modPowerElectronicsPackStateHandle->disChargeLCAllowed = true;
-			}else{
-				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
-			}
+				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_NONE;
+			}	
 		}
 		//Enable charge
 		if(modPowerElectronicsPackStateHandle->cellVoltageHigh <= (modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->hysteresisCharge) && modPowerElectronicsPackStateHandle->tempBatteryHigh <= modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMax && modPowerElectronicsPackStateHandle->tempBatteryLow >= modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMin) {
 			if(modDelayTick1ms(&modPowerElectronicsChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutChargeRetry)){
 				modPowerElectronicsPackStateHandle->chargeAllowed = true;
-			}else{
-				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_CHARGE_RETRY;
+				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_NONE;
 			}
 		}
 		
@@ -1283,11 +1283,19 @@ float modPowerElectronicsCalcPackCurrent(void){
 }
 
 void modPowerElectronicsLCSenseSample(void) {
-		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,modPowerElectronicsGeneralConfigHandle->shuntLCOffset,modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
+		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,initCurrentOffset, modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage, modPowerElectronicsGeneralConfigHandle->loadVoltageOffset, modPowerElectronicsGeneralConfigHandle->loadVoltageFactor);
 	#ifdef HWVersion_SS
 		driverHWADCGetChargerVoltage(&modPowerElectronicsPackStateHandle->chargerVoltage, modPowerElectronicsGeneralConfigHandle->chargerVoltageOffset, modPowerElectronicsGeneralConfigHandle->chargerVoltageFactor);
 	#endif
+	//Calculate the zero current offset
+	if(initCurrentOffsetCounter < 2){
+		//initCurrentOffsetTemp += modPowerElectronicsPackStateHandle->loCurrentLoadCurrent;
+		initCurrentOffsetCounter++;
+		if(initCurrentOffsetCounter == 2){
+			initCurrentOffset = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent;
+		}
+	}
 }
 
 void modPowerElectronicsLCSenseInit(void) {
