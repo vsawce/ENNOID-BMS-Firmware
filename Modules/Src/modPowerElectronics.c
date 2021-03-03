@@ -241,29 +241,6 @@ bool modPowerElectronicsTask(void) {
 		// Check and respond to the measured temperature values
 		modPowerElectronicsCheckPackSOA();
 		
-		// Check and determine whether or not there is a charge current and we need to balance. 
-		if(modPowerElectronicsPackStateHandle->packCurrent >= modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold ) {
-			if(modDelayTick1ms(&modPowerElectronicsChargeCurrentDetectionLastTick,5000)) {
-				if(modPowerElectronicsPackStateHandle->cellVoltageHigh <= (modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage-0.2f)){
-					modPowerElectronicsPackStateHandle->chargeBalanceActive = true; // modPowerElectronicsGeneralConfigHandle->allowChargingDuringDischarge;
-				}
-				modPowerElectronicsPackStateHandle->chargeCurrentDetected = true;																																								// Charge current is detected after 2 seconds
-			}
-			
-			if(modPowerElectronicsPackStateHandle->chargeCurrentDetected) {
-				modPowerElectronicsResetBalanceModeActiveTimeout();
-			}
-		}else{
-			modPowerElectronicsPackStateHandle->chargeCurrentDetected = false;
-			modPowerElectronicsPackStateHandle->chargeBalanceActive = false;
-			modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
-		}
-		
-		// TODO: have balance time configureable
-		if(modDelayTick1ms(&modPowerElectronicsBalanceModeActiveLastTick,10*60*1000)) {																																			// When a charge current is derected, balance for 10 minutes
-			modPowerElectronicsPackStateHandle->chargeBalanceActive = false;
-		}
-		
 		modPowerElectronicsPackStateHandle->powerButtonActuated = modPowerStateGetButtonPressedState();
 		
 		returnValue = true;
@@ -362,7 +339,7 @@ void modPowerElectronicsSubTaskBalancing(void) {
 		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 200;
 		
 		if(delaytoggle) {
-			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || !modPowerElectronicsPackStateHandle->chargeAllowed || modPowerElectronicsGeneralConfigHandle->cellBalanceAllTime) {	
+			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerStateChargerDetected() || modPowerElectronicsGeneralConfigHandle->cellBalanceAllTime) {	
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->noOfParallelModules; i++) {
 					if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
 						if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart) {

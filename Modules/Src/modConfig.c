@@ -121,7 +121,6 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
 	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.051f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = 2;                       // Shunt offset low current
 	configLocation->voltageLCFactor	                               = 3.50f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
 	configLocation->loadVoltageFactor	                             = 49.2f;                   // Load voltage factor 
@@ -223,7 +222,6 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
 	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.07f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = -7;                      // Shunt offset low current
 	configLocation->voltageLCFactor	                               = 47.5f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
 	configLocation->loadVoltageFactor	                             = 190.0f;                  // Load voltage factor 
@@ -326,7 +324,6 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
 	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.0052f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = 2;                       // Shunt offset low current
 	configLocation->voltageLCFactor	                               = 1.35f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
 	configLocation->loadVoltageFactor	                             = 29.8f;                   // Load voltage factor 

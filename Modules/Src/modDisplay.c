@@ -187,7 +187,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsWrite('V');
 					}else if(modDisplayDispLoadShuffle == 3){
 				//Display Max battery temperature
-						libGraphicsSetCursor(7,7);
+						libGraphicsSetCursor(0,7);
 						libGraphicsWrite('T');
 						libGraphicsWrite('m');
 						libGraphicsWrite('a');
@@ -205,9 +205,8 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.HighestTemp));
 						libGraphicsWrite('.');
 						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.HighestTemp));
-						libGraphicsWrite('C');
 					//Display low battery temperature
-						libGraphicsSetCursor(7,32);
+						libGraphicsSetCursor(0,32);
 						libGraphicsWrite('T');
 						libGraphicsWrite('m');
 						libGraphicsWrite('i');
@@ -225,7 +224,6 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.LowestTemp));
 						libGraphicsWrite('.');
 						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.LowestTemp));
-						libGraphicsWrite('C');
 						}
 				};
 				break;
@@ -281,11 +279,17 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				driverSWSSD1306ClearDisplay();
 				libGraphicsSetTextSize(2);
 				libGraphicsSetTextColor_0(WHITE);
-				libGraphicsSetCursor(SSD1306_LCDWIDTH/2-16,SSD1306_LCDHEIGHT/2-6);
+				libGraphicsSetCursor(SSD1306_LCDWIDTH/2-50,SSD1306_LCDHEIGHT/2-6);
 			
-				libGraphicsWrite('B');  
-				libGraphicsWrite('y');  
-				libGraphicsWrite('e');  
+				libGraphicsWrite('P');  
+				libGraphicsWrite('O');  
+				libGraphicsWrite('W');
+				libGraphicsWrite('E');
+				libGraphicsWrite('R');
+				libGraphicsWrite(' ');
+				libGraphicsWrite('O');	
+				libGraphicsWrite('F');	
+				libGraphicsWrite('F');			
 				break;
 			case DISP_MODE_ERROR:
 				driverSWSSD1306ClearDisplay();

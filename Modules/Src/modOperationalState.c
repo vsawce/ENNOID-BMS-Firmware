@@ -452,7 +452,7 @@ void modOperationalStateSetNewState(OperationalStateTypedef newState) {
 };
 
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState) {
-	if((modPowerStateChargerDetected() && !(modOperationalStatePackStatehandle->chargeDesired && modOperationalStatePackStatehandle->chargeAllowed)) || ((modOperationalStatePackStatehandle->packCurrent > modOperationalStateGeneralConfigHandle->chargerEnabledThreshold ) && modOperationalStatePackStatehandle->chargeDesired && modOperationalStatePackStatehandle->chargeAllowed)) {
+	if(modPowerStateChargerDetected()){
 		modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
 	}else{
 		if(modDelayTick1ms(&modOperationalStateChargerDisconnectDetectDelay,modOperationalStateGeneralConfigHandle->timeoutChargerDisconnected)){

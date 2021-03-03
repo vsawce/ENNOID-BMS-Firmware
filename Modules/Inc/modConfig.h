@@ -57,7 +57,6 @@ typedef struct {
 	uint8_t	 buzzerSignalType;                                                    // - Stores what sound pattern should be made
 	uint8_t  buzzerSignalPersistant;                                              // - Stores whether the buzzer should stay on after triggering
 	float    shuntLCFactor;                                                       // Shunt multiplication factor Low current
-	int16_t  shuntLCOffset;                                                       // Shunt low current offset
 	float    voltageLCFactor;                                                     // Battery Voltage multiplication factor Low current
 	int16_t  voltageLCOffset;                                                     // Battery Voltage low current offset
 	float    loadVoltageFactor;                                                   // Load Voltage multiplication factor 
