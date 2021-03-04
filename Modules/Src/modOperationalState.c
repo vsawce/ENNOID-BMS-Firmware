@@ -112,14 +112,20 @@ void modOperationalStateTask(void) {
 			}
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			modPowerElectronicsSetCharge(true);
-			
-			//Allow main contactors to close if load voltage is above pack voltage & below max allowed voltage, that means that the charger is connected to the load
-			if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
-				modPowerElectronicsSetDisCharge(true);
-				if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
-					modPowerElectronicsSetPreCharge(true);
+			if(modOperationalStatePackStatehandle->packCurrent >= 0.5f | modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+				modPowerElectronicsSetChargePFET(true);
+			}else{
+				modPowerElectronicsSetChargePFET(false);
+			};
+			#ifndef HWVersion_SS
+				//Allow main contactors to close if load voltage is above pack voltage & below max allowed voltage, that means that the charger is connected to the load
+				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
+					modPowerElectronicsSetDisCharge(true);
+					if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
+						modPowerElectronicsSetPreCharge(true);
+					}
 				}
-			}
+			#endif
 			//Cooling/Heating
 			if(modOperationalStatePackStatehandle->coolingAllowed )
 				modPowerElectronicsSetCooling(true);
@@ -174,11 +180,15 @@ void modOperationalStateTask(void) {
 				}
 			  if(modPowerStateChargerDetected()){
 					modPowerElectronicsSetCharge(modOperationalStateGeneralConfigHandle->allowChargingDuringDischarge);
+					if(modOperationalStatePackStatehandle->packCurrent >= 0.5f| modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+						modPowerElectronicsSetChargePFET(true);
+					}
 				}
 			}else{
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetCharge(false);
+				modPowerElectronicsSetChargePFET(false);
 			}
 			
 			//Cooling/Heating
@@ -333,13 +343,20 @@ void modOperationalStateTask(void) {
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			if(modOperationalStatePackStatehandle->chargeAllowed){
 				modPowerElectronicsSetCharge(true);
+				if(modOperationalStatePackStatehandle->packCurrent >= 0.5f| modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+					modPowerElectronicsSetChargePFET(true);
+				}
+				
+				#ifndef HWVersion_SS
 				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10.0f)){ 
 					modPowerElectronicsSetDisCharge(true);
 					if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
 						modPowerElectronicsSetPreCharge(true);
 					}
 				}	
+				#endif
 			}else{
+				modPowerElectronicsSetChargePFET(false);
 				modPowerElectronicsSetCharge(false);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetPreCharge(false);

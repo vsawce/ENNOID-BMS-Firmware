@@ -94,6 +94,7 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->disChargeLCAllowed       = true;
 	modPowerElectronicsPackStateHandle->preChargeDesired         = false;
 	modPowerElectronicsPackStateHandle->chargeDesired            = false;
+	modPowerElectronicsPackStateHandle->chargePFETDesired         = false;
 	modPowerElectronicsPackStateHandle->chargeAllowed 					 = true;
 	modPowerElectronicsPackStateHandle->coolingDesired           = false;
 	modPowerElectronicsPackStateHandle->coolingAllowed 					 = true;
@@ -290,6 +291,16 @@ void modPowerElectronicsSetCharge(bool newState) {
 	}
 };
 
+void modPowerElectronicsSetChargePFET(bool newState) {
+	static bool chargePFETLastState = false;
+	
+	if(chargePFETLastState != newState) {
+		chargePFETLastState = newState;
+		modPowerElectronicsPackStateHandle->chargePFETDesired = newState;
+		modPowerElectronicsUpdateSwitches();
+	}
+};
+
 void modPowerElectronicsSetCooling(bool newState) {
 	static bool coolingLastState = false;
 	
@@ -305,6 +316,7 @@ void modPowerElectronicsDisableAll(void) {
 		modPowerElectronicsPackStateHandle->disChargeDesired = false;
 		modPowerElectronicsPackStateHandle->preChargeDesired = false;
 		modPowerElectronicsPackStateHandle->chargeDesired = false;
+		modPowerElectronicsPackStateHandle->chargePFETDesired = false;
 		modPowerElectronicsPackStateHandle->coolingDesired = false;
 		driverHWSwitchesDisableAll();
 	}
@@ -524,12 +536,19 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	};
 	//Handle charge input
-	if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed)
+	if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed){
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
-	
-	else
+	}else{
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
-	
+	};
+	#ifdef HWVersion_SS
+	//Handle chargePFET input
+	if(modPowerElectronicsPackStateHandle->chargePFETDesired && modPowerElectronicsPackStateHandle->chargeAllowed){
+		driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,(driverHWSwitchesStateTypedef)SWITCH_SET);
+	}else{
+		driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,(driverHWSwitchesStateTypedef)SWITCH_RESET);
+	};
+	#endif
 	//Handle cooling output
 	#ifndef HWVersion_SS
 	if(modPowerElectronicsPackStateHandle->coolingDesired && modPowerElectronicsPackStateHandle->coolingAllowed)

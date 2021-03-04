@@ -213,9 +213,9 @@ void modCANSendSimpleStatusFast(void) {
 	flagHolder |= (modCANPackStateHandle->chargeDesired          << 1);
 	flagHolder |= (modCANPackStateHandle->disChargeLCAllowed     << 2);
 	flagHolder |= (disChargeDesiredMask                          << 3);
-	flagHolder |= (modCANPackStateHandle->chargeBalanceActive    << 4);
+	flagHolder |= (modCANPackStateHandle->balanceActive   			 << 4);
 	flagHolder |= (modCANPackStateHandle->packInSOADischarge     << 5);
-	flagHolder |= (modCANPackStateHandle->chargeBalanceActive    << 6);
+	flagHolder |= (modCANPackStateHandle->chargePFETDesired    	 << 6);
 	flagHolder |= (modCANPackStateHandle->powerButtonActuated    << 7);
 	
 	// Send (dis)charge throttle and booleans.

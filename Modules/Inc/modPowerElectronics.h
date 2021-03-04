@@ -107,6 +107,7 @@ typedef struct {
 	uint8_t  disChargeDesired;
 	uint8_t  disChargeLCAllowed;
 	uint8_t  chargeDesired;
+	uint8_t  chargePFETDesired;
 	uint8_t  chargeAllowed;
 	uint8_t  coolingDesired;
 	uint8_t  coolingAllowed;
@@ -142,6 +143,7 @@ void  modPowerElectronicsAllowForcedOn(bool allowedState);
 void  modPowerElectronicsSetPreCharge(bool newState);
 bool  modPowerElectronicsSetDisCharge(bool newState);
 void  modPowerElectronicsSetCharge(bool newState);
+void  modPowerElectronicsSetChargePFET(bool newState);
 void  modPowerElectronicsSetCooling(bool newState);
 void  modPowerElectronicsDisableAll(void);
 void  modPowerElectronicsCalculateCellStats(void);
