@@ -23,6 +23,9 @@ typedef struct {
 	float AverageCellVoltage;
 	float Humidity;
 	uint8_t DisplayStyle;
+	uint8_t FaultCode;
+	float CellMismatch;
+	float ChargerVoltage;
 } modDisplayDataTypedef;
 
 typedef enum {

@@ -121,7 +121,6 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
 	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.051f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = 2;                       // Shunt offset low current
 	configLocation->voltageLCFactor	                               = 3.50f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
 	configLocation->loadVoltageFactor	                             = 49.2f;                   // Load voltage factor 
@@ -223,7 +222,6 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
 	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.07f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = -7;                      // Shunt offset low current
 	configLocation->voltageLCFactor	                               = 47.5f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
 	configLocation->loadVoltageFactor	                             = 190.0f;                  // Load voltage factor 
@@ -326,7 +324,6 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
 	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.0052f;              		// Shunt factor low current
-	configLocation->shuntLCOffset                                  = 2;                       // Shunt offset low current
 	configLocation->voltageLCFactor	                               = 1.35f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
 	configLocation->loadVoltageFactor	                             = 29.8f;                   // Load voltage factor 
@@ -349,9 +346,9 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->minimalPrechargePercentage								     = 0.90f;										// output should be at a minimal of 80% of input voltage.
 	configLocation->timeoutLCPreCharge												     = 1.5*1000;								// Precharge error timeout, allow 1.5 seconds pre-charge time before declaring load error.
 	configLocation->maxAllowedCurrent													     = 1000.0f;									// Allow max XXXA trough BMS.
-	configLocation->allowedTempBattDischargingMax                  = 75.0f;                   // Max battery temperature where discharging is still allowed
+	configLocation->allowedTempBattDischargingMax                  = 105.0f;                   // Max battery temperature where discharging is still allowed
 	configLocation->allowedTempBattDischargingMin                  = 0.0f;                    // Min battery temperature where discharging is still allowed
-	configLocation->allowedTempBattChargingMax                     = 50.0f;                   // Max battery temperature where charging is still allowed
+	configLocation->allowedTempBattChargingMax                     = 105.0f;                   // Max battery temperature where charging is still allowed
 	configLocation->allowedTempBattChargingMin                     = 0.0f;                    // Min battery temperature where charging is still allowed
 	configLocation->allowedTempBattCoolingMax                      = 5.0f;                    // Max battery temperature where cooling is activated
 	configLocation->allowedTempBattCoolingMin                      = 50.0f;                   // Min battery temperature where heating is activated
@@ -361,7 +358,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryError								     = 5000;										// Show error symbol for X seconds before going to powerdown in general error state.
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
-	configLocation->displayStyle															     = basic;										// Display style used for showing the SSD1306 data
+	configLocation->displayStyle															     = advanced;								// Display style used for showing the SSD1306 data
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
 	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
@@ -376,12 +373,12 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->tempEnableMaskBMS                              = 0x0001;									// Bitwise select what sensor to enable for the BMS (internal sensors).
 	configLocation->tempEnableMaskBattery                          = 0xFFFF;									// Bitwise select what sensor to enable for the battery (external sensors).
   configLocation->tempEnableMaskExpansion                         = 0xFFFF;									// Bitwise select what sensor to enable for the battery (external sensors).
-	configLocation->noOfTempSensorPerModule            						 = 1;												// Number of temperature sensors monitored per LTC68XX
+	configLocation->noOfTempSensorPerModule            						 = 0;												// Number of temperature sensors monitored per LTC68XX
 	configLocation->noOfExpansionBoard       							   			 = 0;												// Number of expansion board
 	configLocation->noOfTempSensorPerExpansionBoard          			 = 0;												// Number of temperature sensors monitored per expansion board
 	configLocation->LCUseDischarge                                 = enabled;                 // Enable or disable the solid state output
 	configLocation->LCUsePrecharge                                 = enabled;              		// Use precharge before enabling main output
-	configLocation->allowChargingDuringDischarge                   = true;                    // Allow the battery to be charged in normal mode
+	configLocation->allowChargingDuringDischarge                   = false;                    // Allow the battery to be charged in normal mode
 	configLocation->allowForceOn                                   = false;                   // Allow the BMS to be forced ON by long actuation of the power button
 	configLocation->pulseToggleButton                              = true;                    // Select either pulse or toggle power button
 	configLocation->useCANSafetyInput                              = false;                   // Use the safety input status from CAN

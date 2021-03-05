@@ -97,7 +97,7 @@ void modOperationalStateTask(void) {
 			
 			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimeoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
 				if(!modOperationalStatePackStatehandle->disChargeLCAllowed && !modPowerStateChargerDetected()) {						// If discharge is not allowed
-					modOperationalStateSetNewState(OP_STATE_BATTERY_DEAD);							// Then the battery is dead
+					modOperationalStateSetNewState(OP_STATE_ERROR);							// Then the battery is dead
 					modOperationalStateBatteryDeadDisplayTime = HAL_GetTick();
 				}
 				modOperationalStateUpdateStates();																		// Sync states
@@ -112,14 +112,20 @@ void modOperationalStateTask(void) {
 			}
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			modPowerElectronicsSetCharge(true);
-			
-			//Allow main contactors to close if load voltage is above pack voltage & below max allowed voltage, that means that the charger is connected to the load
-			if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
-				modPowerElectronicsSetDisCharge(true);
-				if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
-					modPowerElectronicsSetPreCharge(true);
+			if(modOperationalStatePackStatehandle->packCurrent >= 0.5f | modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+				modPowerElectronicsSetChargePFET(true);
+			}else{
+				modPowerElectronicsSetChargePFET(false);
+			};
+			#ifndef HWVersion_SS
+				//Allow main contactors to close if load voltage is above pack voltage & below max allowed voltage, that means that the charger is connected to the load
+				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
+					modPowerElectronicsSetDisCharge(true);
+					if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
+						modPowerElectronicsSetPreCharge(true);
+					}
 				}
-			}
+			#endif
 			//Cooling/Heating
 			if(modOperationalStatePackStatehandle->coolingAllowed )
 				modPowerElectronicsSetCooling(true);
@@ -129,6 +135,8 @@ void modOperationalStateTask(void) {
 			
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
+			modOperationalStateDisplayData.Current = fabs(modOperationalStatePackStatehandle->packCurrent);
+			modOperationalStateDisplayData.ChargerVoltage = fabs(modOperationalStatePackStatehandle->chargerVoltage);
 			modDisplayShowInfo(DISP_MODE_CHARGE,modOperationalStateDisplayData);
 			break;
 		case OP_STATE_PRE_CHARGE:
@@ -172,11 +180,15 @@ void modOperationalStateTask(void) {
 				}
 			  if(modPowerStateChargerDetected()){
 					modPowerElectronicsSetCharge(modOperationalStateGeneralConfigHandle->allowChargingDuringDischarge);
+					if(modOperationalStatePackStatehandle->packCurrent >= 0.5f| modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+						modPowerElectronicsSetChargePFET(true);
+					}
 				}
 			}else{
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetCharge(false);
+				modPowerElectronicsSetChargePFET(false);
 			}
 			
 			//Cooling/Heating
@@ -195,10 +207,11 @@ void modOperationalStateTask(void) {
 			
 			// Battery is empty or battery temp is out of range?
 			if(!modOperationalStatePackStatehandle->disChargeLCAllowed) {							
-				modOperationalStateSetNewState(OP_STATE_ERROR);
-				modOperationalStatePackStatehandle->faultState = FAULT_CODE_PACK_UNDER_VOLTAGE;
+				//modOperationalStateSetNewState(OP_STATE_ERROR);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetCharge(false);
+				modOperationalStatePackStatehandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
+				
 			}
 
 			
@@ -214,7 +227,7 @@ void modOperationalStateTask(void) {
 				modOperationalStatePackStatehandle->powerDownDesired = true;
 			}
 			
-			if(modOperationalStatePackStatehandle->chargeBalanceActive) {
+			if(modOperationalStatePackStatehandle->balanceActive) {
 				if(!modOperationalStatePackStatehandle->chargeAllowed && (modOperationalStatePackStatehandle->cellVoltageMisMatch < modOperationalStateGeneralConfigHandle->maxMismatchThreshold)){
 					if(modDelayTick1ms(&modOperationalStateChargedTimeout,modOperationalStateGeneralConfigHandle->timeoutChargingCompletedMinimalMismatch)) {
 						modStateOfChargeVoltageEvent(EVENT_FULL);
@@ -287,7 +300,9 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
+			modOperationalStateDisplayData.FaultCode = modOperationalStatePackStatehandle->faultState;
 			modDisplayShowInfo(DISP_MODE_ERROR,modOperationalStateDisplayData);
+
 			break;
 		case OP_STATE_ERROR_PRECHARGE:
 			// Go to save state and in the future -> try to handle error situation
@@ -328,16 +343,24 @@ void modOperationalStateTask(void) {
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			if(modOperationalStatePackStatehandle->chargeAllowed){
 				modPowerElectronicsSetCharge(true);
+				if(modOperationalStatePackStatehandle->packCurrent >= 0.5f| modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+					modPowerElectronicsSetChargePFET(true);
+				}
+				
+				#ifndef HWVersion_SS
 				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10.0f)){ 
 					modPowerElectronicsSetDisCharge(true);
 					if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
 						modPowerElectronicsSetPreCharge(true);
 					}
 				}	
+				#endif
 			}else{
+				modPowerElectronicsSetChargePFET(false);
 				modPowerElectronicsSetCharge(false);
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetPreCharge(false);
+				modOperationalStatePackStatehandle->faultState = FAULT_CODE_CHARGE_RETRY;
 			};
 			
 			//Cooling/Heating
@@ -349,6 +372,8 @@ void modOperationalStateTask(void) {
 			
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.StateOfCharge = modOperationalStateGeneralStateOfCharge->generalStateOfCharge;
+			modOperationalStateDisplayData.CellMismatch = fabs(modOperationalStatePackStatehandle->cellVoltageMisMatch);
+			modOperationalStateDisplayData.AverageCellVoltage = fabs(modOperationalStatePackStatehandle->cellVoltageAverage);
 			modDisplayShowInfo(DISP_MODE_BALANCING,modOperationalStateDisplayData);
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
 			break;
@@ -444,7 +469,7 @@ void modOperationalStateSetNewState(OperationalStateTypedef newState) {
 };
 
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState) {
-	if((modPowerStateChargerDetected() && !(modOperationalStatePackStatehandle->chargeDesired && modOperationalStatePackStatehandle->chargeAllowed)) || ((modOperationalStatePackStatehandle->packCurrent > modOperationalStateGeneralConfigHandle->chargerEnabledThreshold ) && modOperationalStatePackStatehandle->chargeDesired && modOperationalStatePackStatehandle->chargeAllowed)) {
+	if(modPowerStateChargerDetected()){
 		modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
 	}else{
 		if(modDelayTick1ms(&modOperationalStateChargerDisconnectDetectDelay,modOperationalStateGeneralConfigHandle->timeoutChargerDisconnected)){

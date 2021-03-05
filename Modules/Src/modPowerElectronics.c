@@ -52,6 +52,9 @@ uint32_t modPowerElectronicsSOADisChargeChangeLastTick;
 uint32_t chargeIncreaseIntervalTime;
 
 uint16_t  calculatedChargeThrottle = 0;
+float initCurrentOffset = 0.0f;
+//float initCurrentOffsetTemp = 0.0f;
+uint8_t initCurrentOffsetCounter = 0;
 
 //uint32_t hardUnderVoltageFlags, hardOverVoltageFlags;
 
@@ -91,6 +94,7 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->disChargeLCAllowed       = true;
 	modPowerElectronicsPackStateHandle->preChargeDesired         = false;
 	modPowerElectronicsPackStateHandle->chargeDesired            = false;
+	modPowerElectronicsPackStateHandle->chargePFETDesired         = false;
 	modPowerElectronicsPackStateHandle->chargeAllowed 					 = true;
 	modPowerElectronicsPackStateHandle->coolingDesired           = false;
 	modPowerElectronicsPackStateHandle->coolingAllowed 					 = true;
@@ -159,7 +163,6 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	
 	// Sample the first pack voltage moment
 	driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packVoltage,modPowerElectronicsGeneralConfigHandle->voltageLCOffset, modPowerElectronicsGeneralConfigHandle->voltageLCFactor);
-	
 
 	
 	// Register terminal commands
@@ -239,29 +242,6 @@ bool modPowerElectronicsTask(void) {
 		// Check and respond to the measured temperature values
 		modPowerElectronicsCheckPackSOA();
 		
-		// Check and determine whether or not there is a charge current and we need to balance. 
-		if(modPowerElectronicsPackStateHandle->packCurrent >= modPowerElectronicsGeneralConfigHandle->chargerEnabledThreshold ) {
-			if(modDelayTick1ms(&modPowerElectronicsChargeCurrentDetectionLastTick,5000)) {
-				if(modPowerElectronicsPackStateHandle->cellVoltageHigh <= (modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage-0.2f)){
-					modPowerElectronicsPackStateHandle->chargeBalanceActive = true; // modPowerElectronicsGeneralConfigHandle->allowChargingDuringDischarge;
-				}
-				modPowerElectronicsPackStateHandle->chargeCurrentDetected = true;																																								// Charge current is detected after 2 seconds
-			}
-			
-			if(modPowerElectronicsPackStateHandle->chargeCurrentDetected) {
-				modPowerElectronicsResetBalanceModeActiveTimeout();
-			}
-		}else{
-			modPowerElectronicsPackStateHandle->chargeCurrentDetected = false;
-			modPowerElectronicsPackStateHandle->chargeBalanceActive = false;
-			modPowerElectronicsChargeCurrentDetectionLastTick = HAL_GetTick();
-		}
-		
-		// TODO: have balance time configureable
-		if(modDelayTick1ms(&modPowerElectronicsBalanceModeActiveLastTick,10*60*1000)) {																																			// When a charge current is derected, balance for 10 minutes
-			modPowerElectronicsPackStateHandle->chargeBalanceActive = false;
-		}
-		
 		modPowerElectronicsPackStateHandle->powerButtonActuated = modPowerStateGetButtonPressedState();
 		
 		returnValue = true;
@@ -311,6 +291,16 @@ void modPowerElectronicsSetCharge(bool newState) {
 	}
 };
 
+void modPowerElectronicsSetChargePFET(bool newState) {
+	static bool chargePFETLastState = false;
+	
+	if(chargePFETLastState != newState) {
+		chargePFETLastState = newState;
+		modPowerElectronicsPackStateHandle->chargePFETDesired = newState;
+		modPowerElectronicsUpdateSwitches();
+	}
+};
+
 void modPowerElectronicsSetCooling(bool newState) {
 	static bool coolingLastState = false;
 	
@@ -326,6 +316,7 @@ void modPowerElectronicsDisableAll(void) {
 		modPowerElectronicsPackStateHandle->disChargeDesired = false;
 		modPowerElectronicsPackStateHandle->preChargeDesired = false;
 		modPowerElectronicsPackStateHandle->chargeDesired = false;
+		modPowerElectronicsPackStateHandle->chargePFETDesired = false;
 		modPowerElectronicsPackStateHandle->coolingDesired = false;
 		driverHWSwitchesDisableAll();
 	}
@@ -360,7 +351,7 @@ void modPowerElectronicsSubTaskBalancing(void) {
 		delayTimeHolder = delaytoggle ? modPowerElectronicsGeneralConfigHandle->cellBalanceUpdateInterval : 200;
 		
 		if(delaytoggle) {
-			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerElectronicsPackStateHandle->chargeBalanceActive || !modPowerElectronicsPackStateHandle->chargeAllowed || modPowerElectronicsGeneralConfigHandle->cellBalanceAllTime) {	
+			if((modPowerElectronicsPackStateHandle->chargeDesired && !modPowerElectronicsPackStateHandle->disChargeDesired) || modPowerStateChargerDetected() || modPowerElectronicsGeneralConfigHandle->cellBalanceAllTime) {	
 				for(uint8_t i = 0; i < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsGeneralConfigHandle->noOfParallelModules; i++) {
 					if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= (modPowerElectronicsPackStateHandle->cellVoltageLow + modPowerElectronicsGeneralConfigHandle->cellBalanceDifferenceThreshold)) {
 						if(modPowerElectronicsPackStateHandle->cellVoltagesIndividual[i].cellVoltage >= modPowerElectronicsGeneralConfigHandle->cellBalanceStart) {
@@ -461,26 +452,22 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 		if(modPowerElectronicsPackStateHandle->cellVoltageLow >= (modPowerElectronicsGeneralConfigHandle->cellLCSoftUnderVoltage + modPowerElectronicsGeneralConfigHandle->hysteresisDischarge) && modPowerElectronicsPackStateHandle->tempBatteryHigh <= modPowerElectronicsGeneralConfigHandle->allowedTempBattDischargingMax && modPowerElectronicsPackStateHandle->tempBatteryLow >= modPowerElectronicsGeneralConfigHandle->allowedTempBattDischargingMin) {
 			if(modDelayTick1ms(&modPowerElectronicsDisChargeLCRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutDischargeRetry)){
 				modPowerElectronicsPackStateHandle->disChargeLCAllowed = true;
-			}else{
-				//modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
-			}
+				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_NONE;
+			}	
 		}
 		//Enable charge
 		if(modPowerElectronicsPackStateHandle->cellVoltageHigh <= (modPowerElectronicsGeneralConfigHandle->cellSoftOverVoltage - modPowerElectronicsGeneralConfigHandle->hysteresisCharge) && modPowerElectronicsPackStateHandle->tempBatteryHigh <= modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMax && modPowerElectronicsPackStateHandle->tempBatteryLow >= modPowerElectronicsGeneralConfigHandle->allowedTempBattChargingMin) {
 			if(modDelayTick1ms(&modPowerElectronicsChargeRetryLastTick,modPowerElectronicsGeneralConfigHandle->timeoutChargeRetry)){
 				modPowerElectronicsPackStateHandle->chargeAllowed = true;
-			}else{
-				//modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_CHARGE_RETRY;
+				modPowerElectronicsPackStateHandle->faultState = FAULT_CODE_NONE;
 			}
 		}
 		
 		//Handle cooling 
 		if(modPowerElectronicsPackStateHandle->tempBatteryHigh <= modPowerElectronicsGeneralConfigHandle->allowedTempBattCoolingMax && modPowerElectronicsPackStateHandle->tempBatteryLow >= modPowerElectronicsGeneralConfigHandle->allowedTempBattCoolingMin){
 			modPowerElectronicsPackStateHandle->coolingAllowed = false;
-			modPowerElectronicsDisChargeLCRetryLastTick = HAL_GetTick();
 		}else{
 			modPowerElectronicsPackStateHandle->coolingAllowed = true;
-			modPowerElectronicsChargeRetryLastTick = HAL_GetTick();
 		};
 		
 		//Status
@@ -549,12 +536,19 @@ void modPowerElectronicsUpdateSwitches(void) {
 		driverHWSwitchesSetSwitchState(SWITCH_DISCHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	};
 	//Handle charge input
-	if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed)
+	if(modPowerElectronicsPackStateHandle->chargeDesired && modPowerElectronicsPackStateHandle->chargeAllowed){
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_SET);
-	
-	else
+	}else{
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
-	
+	};
+	#ifdef HWVersion_SS
+	//Handle chargePFET input
+	if(modPowerElectronicsPackStateHandle->chargePFETDesired && modPowerElectronicsPackStateHandle->chargeAllowed){
+		driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,(driverHWSwitchesStateTypedef)SWITCH_SET);
+	}else{
+		driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,(driverHWSwitchesStateTypedef)SWITCH_RESET);
+	};
+	#endif
 	//Handle cooling output
 	#ifndef HWVersion_SS
 	if(modPowerElectronicsPackStateHandle->coolingDesired && modPowerElectronicsPackStateHandle->coolingAllowed)
@@ -1285,11 +1279,19 @@ float modPowerElectronicsCalcPackCurrent(void){
 }
 
 void modPowerElectronicsLCSenseSample(void) {
-		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,modPowerElectronicsGeneralConfigHandle->shuntLCOffset,modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
+		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,initCurrentOffset, modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage, modPowerElectronicsGeneralConfigHandle->loadVoltageOffset, modPowerElectronicsGeneralConfigHandle->loadVoltageFactor);
 	#ifdef HWVersion_SS
 		driverHWADCGetChargerVoltage(&modPowerElectronicsPackStateHandle->chargerVoltage, modPowerElectronicsGeneralConfigHandle->chargerVoltageOffset, modPowerElectronicsGeneralConfigHandle->chargerVoltageFactor);
 	#endif
+	//Calculate the zero current offset
+	if(initCurrentOffsetCounter < 2){
+		//initCurrentOffsetTemp += modPowerElectronicsPackStateHandle->loCurrentLoadCurrent;
+		initCurrentOffsetCounter++;
+		if(initCurrentOffsetCounter == 2){
+			initCurrentOffset = modPowerElectronicsPackStateHandle->loCurrentLoadCurrent;
+		}
+	}
 }
 
 void modPowerElectronicsLCSenseInit(void) {

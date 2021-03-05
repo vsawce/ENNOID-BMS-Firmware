@@ -27,6 +27,7 @@ uint32_t toggleButtonPressedLastTick;
 bool     modDisplayPresent;
 uint8_t modDisplayDispLoadShuffle;
 bool toggleButtonPressed;
+bool toggleButtonReleased;
 bool toggleButtonPressedCounter;
 
 extern modDisplayDataTypedef modDisplayData;
@@ -51,22 +52,21 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 	static modDisplayDataTypedef modDisplayDataLast;
 	
 	toggleButtonPressed = driverHWPowerStateReadInput(P_STAT_BUTTON_INPUT);
-	
-		if(toggleButtonPressed && modDelayTick1msNoRST(&toggleButtonPressedLastTick,500)){
-			toggleButtonPressedCounter = true;
-			
-		}		
-		if(toggleButtonPressedCounter && modDelayTick1ms(&toggleButtonPressedLastTick,500)){
+		if(toggleButtonPressed == 0){
+			toggleButtonReleased = 1 ;
+		}
+
+		if(toggleButtonPressed && toggleButtonReleased && modDelayTick1ms(&toggleButtonPressedLastTick,500)){
 			toggleButtonPressedLastTick = HAL_GetTick();
 			modDisplayDispLoadShuffle++;
-			
-		}
+			toggleButtonReleased = 0;
+			toggleButtonPressedCounter = true;
+		}	
 		
-		
-		if(modDisplayDispLoadShuffle == 9)
+		if(modDisplayDispLoadShuffle == 4)
 				modDisplayDispLoadShuffle = 0;
 		
-	if(((modDisplayCurrentState != newState || memcmp(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef))) && ((modDelayTick1ms(&modDisplayLastRefresh,3000)) || modDisplayCurrentState != DISP_MODE_LOAD || newState != DISP_MODE_LOAD)) || toggleButtonPressedCounter) {											// Different state than last state?
+	if(((modDisplayCurrentState != newState || memcmp(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef))) && ((modDelayTick1ms(&modDisplayLastRefresh,3000)) || modDisplayCurrentState != DISP_MODE_LOAD || newState != DISP_MODE_LOAD || modDisplayCurrentState != DISP_MODE_CHARGE || newState != DISP_MODE_CHARGE || modDisplayCurrentState != DISP_MODE_BALANCING || newState != DISP_MODE_BALANCING)) || toggleButtonPressedCounter) {											// Different state than last state?
 		toggleButtonPressedCounter = false;
 		memcpy(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef));
 		switch(newState) {
@@ -96,11 +96,12 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsSetTextColor_0(WHITE);
 		
 					//Display state of charge
-						libGraphicsSetCursor(15,15);
+						libGraphicsSetCursor(7,7);
 						libGraphicsWrite('S');
 						libGraphicsWrite('O');
 						libGraphicsWrite('C');
 						libGraphicsWrite(':');
+						
 				
 						if(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
 							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge));
@@ -110,12 +111,12 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						}		
 							libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.StateOfCharge));	
 							libGraphicsWrite('%');
-					}else if(modDisplayDispLoadShuffle == 1){
+					
 					//Display current
-						libGraphicsSetCursor(15,15);
+						libGraphicsSetCursor(7,32);
 						libGraphicsWrite('I');
 						libGraphicsWrite(':');
-						if(modDisplayData.Current <= 0.0f){
+						if(modDisplayData.Current < 0.0f){
 							libGraphicsWrite('-');
 						}
 						if(modDisplay100ConvertValueToASCII(modDisplayData.Current)!= 48){
@@ -128,9 +129,9 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsWrite('.');
 						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.Current));
 						libGraphicsWrite('A');							
-					}else if(modDisplayDispLoadShuffle == 2){
+					}else if(modDisplayDispLoadShuffle == 1){
 					//Display Battery Voltage
-						libGraphicsSetCursor(15,15);
+						libGraphicsSetCursor(7,7);
 						libGraphicsWrite('V');
 						libGraphicsWrite(':');
 						if(modDisplay100ConvertValueToASCII(modDisplayData.PackVoltage) !=48){
@@ -143,98 +144,8 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsWrite('.');
 						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.PackVoltage));
 						libGraphicsWrite('V');
-					}else if (modDisplayDispLoadShuffle == 3){
-				//Display cell Voltage high
-						libGraphicsSetCursor(0,15);
-						libGraphicsWrite('C');
-						libGraphicsWrite('V');
-						libGraphicsWrite('H');
-						libGraphicsWrite(':');
-						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.HighestCellVoltage));
-						libGraphicsWrite('.');
-						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.HighestCellVoltage));
-						libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.HighestCellVoltage));
-						libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.HighestCellVoltage));
-						libGraphicsWrite('V');
-					}else if(modDisplayDispLoadShuffle == 4){
-				//Display cell Voltage low
-						libGraphicsSetCursor(0,15);
-						libGraphicsWrite('C');
-						libGraphicsWrite('V');
-						libGraphicsWrite('L');
-						libGraphicsWrite(':');
-						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
-						libGraphicsWrite('.');
-						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
-						libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
-						libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.LowestCellVoltage));
-						libGraphicsWrite('V');
-					}else if(modDisplayDispLoadShuffle == 5){
-				//Display Max battery temperature
-						libGraphicsSetCursor(0,15);
-						libGraphicsWrite('T');
-						libGraphicsWrite('m');
-						libGraphicsWrite('a');
-						libGraphicsWrite('x');
-						libGraphicsWrite(':');
-						if(modDisplayData.HighestTemp <= 0.0f){
-								libGraphicsWrite('-');
-							}
-						if(modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp) !=48){
-								libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp));	
-							}
-						if(modDisplay10ConvertValueToASCII(modDisplayData.HighestTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp) != 48){
-								libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.HighestTemp));
-							}							
-						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.HighestTemp));
-						libGraphicsWrite('.');
-						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.HighestTemp));
-						libGraphicsWrite('C');
-					}else if(modDisplayDispLoadShuffle == 6){
-				//Display Avg battery temperature
-						libGraphicsSetCursor(0,15);
-						libGraphicsWrite('T');
-						libGraphicsWrite('a');
-						libGraphicsWrite('v');
-						libGraphicsWrite('g');
-						libGraphicsWrite(':');
-						if(modDisplayData.AverageTemp <= 0.0f){
-								libGraphicsWrite('-');
-							}						
-						if(modDisplay100ConvertValueToASCII(modDisplayData.AverageTemp) !=48){
-								libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.AverageTemp));	
-							}
-						if(modDisplay10ConvertValueToASCII(modDisplayData.AverageTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.AverageTemp) != 48){
-								libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.AverageTemp));
-							}							
-						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.AverageTemp));
-						libGraphicsWrite('.');
-						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.AverageTemp));
-						libGraphicsWrite('C');
-					}else if(modDisplayDispLoadShuffle == 7){
-					//Display low battery temperature
-						libGraphicsSetCursor(0,15);
-						libGraphicsWrite('T');
-						libGraphicsWrite('m');
-						libGraphicsWrite('i');
-						libGraphicsWrite('n');
-						libGraphicsWrite(':');
-						if(modDisplayData.LowestTemp <= 0.0f){
-								libGraphicsWrite('-');
-							}									
-						if(modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp) !=48){
-								libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp));	
-							}
-						if(modDisplay10ConvertValueToASCII(modDisplayData.LowestTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp) != 48){
-								libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.LowestTemp));
-							}							
-						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.LowestTemp));
-						libGraphicsWrite('.');
-						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.LowestTemp));
-						libGraphicsWrite('C');
-					}else if (modDisplayDispLoadShuffle == 8){
 					//Display humidity
-						libGraphicsSetCursor(0,15);
+						libGraphicsSetCursor(7,32);
 						libGraphicsWrite('H');
 						libGraphicsWrite('u');
 						libGraphicsWrite('m');
@@ -249,6 +160,70 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsWrite('.');
 						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.Humidity));
 						libGraphicsWrite('%');
+					}else if (modDisplayDispLoadShuffle == 2){
+				//Display cell Voltage high
+						libGraphicsSetCursor(7,7);
+						libGraphicsWrite('C');
+						libGraphicsWrite('V');
+						libGraphicsWrite('H');
+						libGraphicsWrite(':');
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.HighestCellVoltage));
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.HighestCellVoltage));
+						libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.HighestCellVoltage));
+						libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.HighestCellVoltage));
+						libGraphicsWrite('V');
+				//Display cell Voltage low
+						libGraphicsSetCursor(7,32);
+						libGraphicsWrite('C');
+						libGraphicsWrite('V');
+						libGraphicsWrite('L');
+						libGraphicsWrite(':');
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
+						libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.LowestCellVoltage));	
+						libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.LowestCellVoltage));
+						libGraphicsWrite('V');
+					}else if(modDisplayDispLoadShuffle == 3){
+				//Display Max battery temperature
+						libGraphicsSetCursor(0,7);
+						libGraphicsWrite('T');
+						libGraphicsWrite('m');
+						libGraphicsWrite('a');
+						libGraphicsWrite('x');
+						libGraphicsWrite(':');
+						if(modDisplayData.HighestTemp < 0.0f){
+								libGraphicsWrite('-');
+							}
+						if(modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp) !=48){
+								libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp));	
+							}
+						if(modDisplay10ConvertValueToASCII(modDisplayData.HighestTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.HighestTemp) != 48){
+								libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.HighestTemp));
+							}							
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.HighestTemp));
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.HighestTemp));
+					//Display low battery temperature
+						libGraphicsSetCursor(0,32);
+						libGraphicsWrite('T');
+						libGraphicsWrite('m');
+						libGraphicsWrite('i');
+						libGraphicsWrite('n');
+						libGraphicsWrite(':');
+						if(modDisplayData.LowestTemp < 0.0f){
+								libGraphicsWrite('-');
+							}									
+						if(modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp) !=48){
+								libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp));	
+							}
+						if(modDisplay10ConvertValueToASCII(modDisplayData.LowestTemp)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.LowestTemp) != 48){
+								libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.LowestTemp));
+							}							
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.LowestTemp));
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.LowestTemp));
 						}
 				};
 				break;
@@ -265,16 +240,56 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				}		
 				libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.StateOfCharge));	
 				libGraphicsWrite('%');
+				libGraphicsSetTextSize(0);
+				libGraphicsSetTextColor_0(INVERSE);
+				libGraphicsSetCursor(4,57);
+				libGraphicsWrite('I');
+						libGraphicsWrite(':');
+						if(modDisplayData.Current < 0.0f){
+							libGraphicsWrite('-');
+						}
+						if(modDisplay100ConvertValueToASCII(modDisplayData.Current)!= 48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.Current));
+						}
+						if(modDisplay10ConvertValueToASCII(modDisplayData.Current)!= 48 || modDisplay100ConvertValueToASCII(modDisplayData.Current)!= 48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.Current));
+							}						 
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.Current));	
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.Current));
+						libGraphicsWrite('A');
+						libGraphicsWrite(' ');
+							//Display charger voltage
+						libGraphicsWrite('V');
+						libGraphicsWrite('c');
+						libGraphicsWrite('h');
+						libGraphicsWrite(':');
+						if(modDisplay100ConvertValueToASCII(modDisplayData.ChargerVoltage) !=48){
+							libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.ChargerVoltage));	
+						}
+						if(modDisplay10ConvertValueToASCII(modDisplayData.ChargerVoltage)!=48 || modDisplay100ConvertValueToASCII(modDisplayData.ChargerVoltage) != 48){
+							libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.ChargerVoltage));
+						}
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.ChargerVoltage));
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.ChargerVoltage));
+						libGraphicsWrite('V');
 				break;
 			case DISP_MODE_POWEROFF:
 				driverSWSSD1306ClearDisplay();
 				libGraphicsSetTextSize(2);
 				libGraphicsSetTextColor_0(WHITE);
-				libGraphicsSetCursor(SSD1306_LCDWIDTH/2-16,SSD1306_LCDHEIGHT/2-6);
+				libGraphicsSetCursor(SSD1306_LCDWIDTH/2-50,SSD1306_LCDHEIGHT/2-6);
 			
-				libGraphicsWrite('B');  
-				libGraphicsWrite('y');  
-				libGraphicsWrite('e');  
+				libGraphicsWrite('P');  
+				libGraphicsWrite('O');  
+				libGraphicsWrite('W');
+				libGraphicsWrite('E');
+				libGraphicsWrite('R');
+				libGraphicsWrite(' ');
+				libGraphicsWrite('O');	
+				libGraphicsWrite('F');	
+				libGraphicsWrite('F');			
 				break;
 			case DISP_MODE_ERROR:
 				driverSWSSD1306ClearDisplay();
@@ -289,6 +304,14 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				libGraphicsWrite('R');  
 				libGraphicsWrite('O');  
 				libGraphicsWrite('R');  
+				libGraphicsWrite(' '); 
+				if(modDisplay100ConvertValueToASCII(modDisplayData.StateOfCharge) !=48){
+					libGraphicsWrite(modDisplay100ConvertValueToASCII(modDisplayData.FaultCode));
+				}
+				if(modDisplay10ConvertValueToASCII(modDisplayData.FaultCode) != 48 || modDisplay100ConvertValueToASCII(modDisplayData.FaultCode) !=48){
+						libGraphicsWrite(modDisplay10ConvertValueToASCII(modDisplayData.FaultCode));
+				}
+				libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.FaultCode));
 				break;
 			case DISP_MODE_ERROR_PRECHARGE:
 				driverSWSSD1306ClearDisplay();
@@ -356,6 +379,29 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 				}		
 				libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.StateOfCharge));	
 				libGraphicsWrite('%');
+				libGraphicsSetTextSize(0);
+				libGraphicsSetTextColor_0(INVERSE);
+				libGraphicsSetCursor(4,57);
+						libGraphicsWrite('C');
+						libGraphicsWrite('V');
+						libGraphicsWrite(':');
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.AverageCellVoltage));	
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.AverageCellVoltage));	
+						libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.AverageCellVoltage));	
+						libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.AverageCellVoltage));
+						libGraphicsWrite('V');
+						libGraphicsWrite(' ');
+						libGraphicsWrite(30);
+						libGraphicsWrite(':');
+						libGraphicsWrite(modDisplay1ConvertValueToASCII(modDisplayData.CellMismatch));	
+						libGraphicsWrite('.');
+						libGraphicsWrite(modDisplay0_1ConvertValueToASCII(modDisplayData.CellMismatch));	
+						libGraphicsWrite(modDisplay0_01ConvertValueToASCII(modDisplayData.CellMismatch));	
+						libGraphicsWrite(modDisplay0_001ConvertValueToASCII(modDisplayData.CellMismatch));
+						libGraphicsWrite('V');
+						
+				
 				break;
 			case DISP_MODE_CHARGED:
 				driverSWSSD1306ClearDisplay();

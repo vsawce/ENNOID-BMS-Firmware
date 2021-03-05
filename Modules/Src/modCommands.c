@@ -197,7 +197,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 		  modCommandsGeneralConfig->buzzerSignalType               = libBufferGet_uint8(data,&ind);                  // 1
 		  modCommandsGeneralConfig->buzzerSignalPersistant         = libBufferGet_uint8(data,&ind);                  // 1
 			modCommandsGeneralConfig->shuntLCFactor                  = libBufferGet_float32_auto(data,&ind);           // 4
-			modCommandsGeneralConfig->shuntLCOffset                  = libBufferGet_int16(data,&ind);                  // 2
 			modCommandsGeneralConfig->voltageLCFactor	               = libBufferGet_float32_auto(data,&ind);           // 4
 			modCommandsGeneralConfig->voltageLCOffset                = libBufferGet_int16(data,&ind);                  // 2
 			modCommandsGeneralConfig->loadVoltageFactor	             = libBufferGet_float32_auto(data,&ind);           // 4
@@ -312,7 +311,6 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalType                ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->buzzerSignalPersistant          ,&ind); // 1
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCFactor                   ,&ind); // 4
-			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->shuntLCOffset                   ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->voltageLCFactor                 ,&ind); // 4
 			libBufferAppend_int16(        modCommandsSendBuffer,modCommandsToBeSendConfig->voltageLCOffset                 ,&ind); // 2
 			libBufferAppend_float32_auto( modCommandsSendBuffer,modCommandsToBeSendConfig->loadVoltageFactor               ,&ind); // 4
