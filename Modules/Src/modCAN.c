@@ -128,15 +128,15 @@ void modCANTask(void){
 		modCANErrorLastTick = HAL_GetTick();
 	}
 	
-	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
-			modCANSendSimpleStatusFast();
+	// if(modCANGeneralConfigHandle->emitStatusOverCAN) {
+	// 	// Send status messages with interval
+	// 	if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
+	// 		modCANSendSimpleStatusFast();
 		
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
-			modCANSendSimpleStatusSlow();
-	}
+	// 	// Send status messages with interval
+	// 	if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
+	// 		modCANSendSimpleStatusSlow();
+	// }
 	
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
 		modCANPackStateHandle->safetyOverCANHCSafeNSafe = false;
@@ -232,7 +232,6 @@ void modCANSendSimpleStatusFast(void) {
 void modCANSendSimpleStatusSlow(void) {
 	int32_t sendIndex = 0;
 	uint8_t buffer[8];
-	#if 0
 	// Send voltage and current
 	sendIndex = 0;
 	libBufferAppend_float32(buffer, modCANPackStateHandle->packVoltage,1e5,&sendIndex);
@@ -244,53 +243,6 @@ void modCANSendSimpleStatusSlow(void) {
 	libBufferAppend_float32(buffer, modCANPackStateHandle->cellVoltageLow,1e5,&sendIndex);
 	libBufferAppend_float32(buffer, modCANPackStateHandle->cellVoltageHigh,1e5,&sendIndex);
 	modCANTransmitExtID(modCANGetCANID(modCANGeneralConfigHandle->CANID,CAN_PACKET_BMS_STATUS_CELLVOLTAGE), buffer, sendIndex);
-	#endif
-	
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->packCurrent,1e2,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->packVoltage,1e3,&sendIndex);
-	modCANTransmitStandardID((0x623 & 0xFFFF), buffer, sendIndex);
-
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->loCurrentLoadCurrent,1e2,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->loCurrentLoadVoltage,1e3,&sendIndex);
-	modCANTransmitStandardID((0x624 & 0xFFFF), buffer, sendIndex);
-
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->cellVoltageLow,1e5,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->cellVoltageHigh,1e5,&sendIndex);
-	modCANTransmitStandardID((0x625 & 0xFFFF), buffer, sendIndex);
-
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->cellVoltageMisMatch,1e5,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->cellVoltageAverage,1e5,&sendIndex);
-	modCANTransmitStandardID((0x626 & 0xFFFF), buffer, sendIndex);
-
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->SoCCapacityAh,1e2,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->SoC,1,&sendIndex);
-	modCANTransmitStandardID((0x627 & 0xFFFF), buffer, sendIndex);
-
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->tempBMSAverage,1e2,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->tempBatteryAverage,1e2,&sendIndex);
-	modCANTransmitStandardID((0x628 & 0xFFFF), buffer, sendIndex);
-
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->tempBatteryLow,1e2,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->tempBatteryHigh,1e2,&sendIndex);
-	modCANTransmitStandardID((0x629 & 0xFFFF), buffer, sendIndex);
-
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->tempBMSLow,1e2,&sendIndex);
-	libBufferAppend_float32(buffer, modCANPackStateHandle->tempBMSHigh,1e2,&sendIndex);
-	modCANTransmitStandardID((0x630 & 0xFFFF), buffer, sendIndex);
-
-	// 0.1W
-	sendIndex = 0; 
-	libBufferAppend_float32(buffer, modCANPackStateHandle->packPower,1e1,&sendIndex);
-	modCANTransmitStandardID((0x631 & 0xFFFF), buffer, sendIndex);
-
 }
 
 void CAN_RX0_IRQHandler(void) {
