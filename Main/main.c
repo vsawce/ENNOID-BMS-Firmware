@@ -32,6 +32,8 @@
 #include "mainDataTypes.h"
 #include "modCAN.h"
 
+#include "safety_check.h"
+#include "report_status.h"
 // This next define enables / disables the watchdog
 //#define AllowDebug
 
@@ -68,6 +70,9 @@ int main(void) {
 	modPowerElectronicsInit(&packState,generalConfig);												// Will measure all voltages and store them in packState	
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 
+  // SRE Code
+  report_status__init(&packState); 
+  safety_check__init(&packState); 
 		
   while(true) {
 		modEffectTask();
@@ -75,6 +80,11 @@ int main(void) {
 		modOperationalStateTask();
 		modUARTTask();
 		modCANTask();
+
+    // SRE Tasks
+    safty_check__task(); 
+    report_status__task(); 
+
 		mainWatchDogReset();
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task

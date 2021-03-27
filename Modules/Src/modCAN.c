@@ -128,15 +128,15 @@ void modCANTask(void){
 		modCANErrorLastTick = HAL_GetTick();
 	}
 	
-	if(modCANGeneralConfigHandle->emitStatusOverCAN) {
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
-			modCANSendSimpleStatusFast();
+	// if(modCANGeneralConfigHandle->emitStatusOverCAN) {
+	// 	// Send status messages with interval
+	// 	if(modDelayTick1ms(&modCANSendStatusSimpleFastLastTisk,200))                        // 5 Hz
+	// 		modCANSendSimpleStatusFast();
 		
-		// Send status messages with interval
-		if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
-			modCANSendSimpleStatusSlow();
-	}
+	// 	// Send status messages with interval
+	// 	if(modDelayTick1ms(&modCANSendStatusSimpleSlowLastTisk,500))                        // 2 Hz
+	// 		modCANSendSimpleStatusSlow();
+	// }
 	
 	if(modDelayTick1ms(&modCANSafetyCANMessageTimeout,5000))
 		modCANPackStateHandle->safetyOverCANHCSafeNSafe = false;
@@ -230,9 +230,8 @@ void modCANSendSimpleStatusFast(void) {
 }
 
 void modCANSendSimpleStatusSlow(void) {
-	int32_t sendIndex;
+	int32_t sendIndex = 0;
 	uint8_t buffer[8];
-
 	// Send voltage and current
 	sendIndex = 0;
 	libBufferAppend_float32(buffer, modCANPackStateHandle->packVoltage,1e5,&sendIndex);
