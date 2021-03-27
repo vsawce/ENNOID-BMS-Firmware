@@ -437,14 +437,16 @@ void modOperationalStateTask(void) {
 	// In case of extreme cellvoltages or temperatures goto error state
 	if((modOperationalStatePackStatehandle->packOperationalCellState == PACK_STATE_ERROR_HARD_CELLVOLTAGE || modOperationalStatePackStatehandle->packOperationalCellState == PACK_STATE_ERROR_TEMPERATURE) && (modOperationalStatePackStatehandle->packOperationalCellState != packOperationalCellStateLastErrorState) && !modOperationalStateForceOn){
 		packOperationalCellStateLastErrorState = modOperationalStatePackStatehandle->packOperationalCellState; // Meganism to make error situation only trigger once
-		modOperationalStateSetNewState(OP_STATE_ERROR);														// TODO: show error message then power down
+		modOperationalStateSetNewState(OP_STATE_ERROR);
+		modOperationalStateUpdateStates();		
 	}
 	
 	// In case of extreme currents goto error state
 	if((modOperationalStatePackStatehandle->packOperationalCellState == PACK_STATE_ERROR_OVER_CURRENT) && (modOperationalStatePackStatehandle->packOperationalCellState != packOperationalCellStateLastErrorState)){
 		packOperationalCellStateLastErrorState = modOperationalStatePackStatehandle->packOperationalCellState; // Meganism to make error situation only trigger once
 		modOperationalStatePackStatehandle->faultState = FAULT_CODE_OVER_CURRENT;
-		modOperationalStateSetNewState(OP_STATE_ERROR);														
+		modOperationalStateSetNewState(OP_STATE_ERROR);	
+		modOperationalStateUpdateStates();
 	}
 	
 	
