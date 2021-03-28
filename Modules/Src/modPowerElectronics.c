@@ -469,6 +469,12 @@ void modPowerElectronicsSubTaskVoltageWatch(void) {
 		}else{
 			modPowerElectronicsPackStateHandle->coolingAllowed = true;
 		};
+
+		//Status
+		if(modPowerElectronicsPackStateHandle->chargeAllowed && modPowerElectronicsPackStateHandle->disChargeLCAllowed)
+			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_NORMAL;
+		else
+			modPowerElectronicsPackStateHandle->packOperationalCellState = PACK_STATE_ERROR_SOFT_CELLVOLTAGE;
 		
 	}
 	

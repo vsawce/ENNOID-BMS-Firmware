@@ -71,21 +71,20 @@ int main(void) {
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 
   // SRE Code
-  report_status__init(&packState); 
-  safety_check__init(&packState); 
-		
+  safety_check_init(&packState); 
+  report_status_init(&packState); 
+
   while(true) {
 		modEffectTask();
 		modPowerStateTask();
 		modOperationalStateTask();
 		modUARTTask();
 		modCANTask();
-
-    // SRE Tasks
-    safty_check__task(); 
-    report_status__task(); 
-
 		mainWatchDogReset();
+    
+    // SRE Tasks
+    safety_check_task(); 
+    report_status_task(); 
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
 			modStateOfChargeProcess();																						// If there is new data handle SoC estimation

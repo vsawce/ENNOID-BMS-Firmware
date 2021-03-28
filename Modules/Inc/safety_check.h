@@ -19,13 +19,13 @@ typedef struct
 
 } safety_status_s; 
 
-void safety_check__init(modPowerElectronicsPackStateTypedef *copy_pack_state); 
-void safty_check__task(void); 
-bool safety_check__cell_over_voltage(void);
-bool safety_check__cell_under_voltage(void);
-bool safety_check__cell_over_temperature(void); 
-bool safety_check__bms_board_over_temperature(void); 
-bool safety_check__power_exceed_80kw(void); 
+void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state); 
+void safety_check_task(void); 
+bool safety_check_cell_over_voltage(void);
+bool safety_check_cell_under_voltage(void);
+bool safety_check_cell_over_temperature(void); 
+bool safety_check_bms_board_over_temperature(void); 
+bool safety_check_power_exceed_80kw(void); 
 safety_status_s safety_check_get_status(void); 
 
 

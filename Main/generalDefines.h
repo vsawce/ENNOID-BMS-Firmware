@@ -2,8 +2,8 @@
 
 // Define the hardware version here:
 //#define ENNOID_LV
-//#define ENNOID_HV
-#define ENNOID_SS
+#define ENNOID_HV
+// #define ENNOID_SS
 
 // Firmware version
 #define FW_VERSION_MAJOR		1
