@@ -22,8 +22,6 @@ void safety_check_task(void)
                                 & safety_check_cell_over_temperature() & safety_check_bms_board_over_temperature()
                                 & safety_check_power_exceed_80kw()); 
 
-    // safety_check_power_exceed_80kw(); 
-
     if (safety_status.status_is_ok) {
         safety_status.bms_fault_data[0] = 0 & 0xFF; 
 
