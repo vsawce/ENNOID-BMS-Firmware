@@ -1,4 +1,6 @@
-#include "stm32f3xx_hal.h"
+#include "driverHWStatus.h"
+#include "generalDefines.h"
+#include "modEffect.h"
 
 #include "safety_check.h"
 
@@ -11,16 +13,6 @@ static modPowerElectronicsPackStateTypedef *pack_state;
 void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state) 
 {
     pack_state = copy_pack_state; 
-
-//     GPIO_InitTypeDef GPIO_InitStruct;
-
-//   __HAL_RCC_GPIOB_CLK_ENABLE();
-//     HAL_GPIO_WritePin(GPIOB, OLED_RST_Pin, GPIO_PIN_RESET);																								// The enable FET of the DC DC converter is connected to the RST pin
-//     GPIO_InitStruct.Pin = OLED_RST_Pin;
-//     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//     GPIO_InitStruct.Pull = GPIO_NOPULL;
-//     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-//     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 void safety_check_task(void) 
@@ -34,8 +26,16 @@ void safety_check_task(void)
 
     if (safety_status.status_is_ok) {
         safety_status.bms_fault_data[0] = 0 & 0xFF; 
+
+        #if SAFETY_LED
+         modEffectChangeState(STAT_LED_POWER,STAT_RESET);
+        #endif 
     } else {
         safety_status.bms_fault_data[0] = 0xFF; 
+
+        #if SAFETY_LED
+         modEffectChangeState(STAT_LED_POWER,STAT_SET);
+        #endif 
     }
 }
 
