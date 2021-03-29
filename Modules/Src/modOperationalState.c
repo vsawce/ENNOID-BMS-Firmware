@@ -70,18 +70,25 @@ void modOperationalStateTask(void) {
 				switch(modOperationalStateGeneralConfigHandle->chargeEnableOperationalState){
 				  case opStateChargingModeCharging:
 						modOperationalStateSetNewState(OP_STATE_CHARGING);								// Go to charge state
-						modEffectChangeState(STAT_LED_POWER,STAT_FLASH);									// Flash power LED when charging
+
+						#if DISABLE_POWER_LED
+							modEffectChangeState(STAT_LED_POWER,STAT_FLASH);	
+						#endif 								// Flash power LED when charging
 						modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
 						break;
 					case opStateChargingModeNormal:
 					default:					
 						modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);							// Prepare to goto operational state
-						modEffectChangeState(STAT_LED_POWER,STAT_SET);										// Turn LED on in normal operation
+						#if DISABLE_POWER_LED
+							modEffectChangeState(STAT_LED_POWER,STAT_SET);		
+						#endif 								// Turn LED on in normal operation
 						break;
 				}
 			}else if(modPowerStateButtonPressedOnTurnon()) {												// Check if button was pressen on turn-on
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);									// Prepare to goto operational state
-				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+				#if DISABLE_POWER_LED
+					modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+				#endif 
 			}else if(modOperationalStateNewState == OP_STATE_INIT){								  // USB or CAN origin of turn-on
 				switch(modOperationalStateGeneralConfigHandle->externalEnableOperationalState){
 					case opStateExtNormal:
@@ -92,7 +99,9 @@ void modOperationalStateTask(void) {
 						modOperationalStateSetNewState(OP_STATE_EXTERNAL);								// Serve external control
 						break;
 				}
-				modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+				#if DISABLE_POWER_LED
+					modEffectChangeState(STAT_LED_POWER,STAT_SET);												// Turn LED on in normal operation
+				#endif 
 			}
 			
 			if(modDelayTick1ms(&modOperationalStateStartupDelay,modOperationalStateGeneralConfigHandle->displayTimeoutSplashScreen)) {// Wait for a bit than update state. Also check voltage after main fuse? followed by going to error state if blown?		
@@ -266,8 +275,10 @@ void modOperationalStateTask(void) {
 			if(modOperationalStateLastState != modOperationalStateCurrentState) {
 			  modOperationalStatePSPDisableDelay = HAL_GetTick();
 			}
-			modPowerElectronicsDisableAll();																				// Disable all power paths
-			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
+			modPowerElectronicsDisableAll();	
+			#if DISABLE_POWER_LED																			// Disable all power paths
+				modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
+			#endif 
 			modEffectChangeState(STAT_LED_DEBUG,STAT_RESET);
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
@@ -297,7 +308,9 @@ void modOperationalStateTask(void) {
 			}
 		
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
-			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			#if DISABLE_POWER_LED
+				modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			#endif 
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.FaultCode = modOperationalStatePackStatehandle->faultState;
@@ -315,7 +328,9 @@ void modOperationalStateTask(void) {
 			}
 		
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
-			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			#if DISABLE_POWER_LED
+				modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			#endif 
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_ERROR_PRECHARGE,modOperationalStateDisplayData);
@@ -375,12 +390,16 @@ void modOperationalStateTask(void) {
 			modOperationalStateDisplayData.CellMismatch = fabs(modOperationalStatePackStatehandle->cellVoltageMisMatch);
 			modOperationalStateDisplayData.AverageCellVoltage = fabs(modOperationalStatePackStatehandle->cellVoltageAverage);
 			modDisplayShowInfo(DISP_MODE_BALANCING,modOperationalStateDisplayData);
-			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
+			#if DISABLE_POWER_LED
+				modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
+			#endif 
 			break;
 		case OP_STATE_CHARGED:
 			// Sound the beeper indicating charging done
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
-			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Indicate Charged
+			#if DISABLE_POWER_LED
+				modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Indicate Charged
+			#endif 
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_CHARGED,modOperationalStateDisplayData);
 			break;
@@ -406,7 +425,9 @@ void modOperationalStateTask(void) {
 			}
 			
 			modDisplayShowInfo(DISP_MODE_FORCED_ON,modOperationalStateDisplayData);
-			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Turn flash fast on debug and power LED
+			#if DISABLE_POWER_LED
+				modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Turn flash fast on debug and power LED
+			#endif 
 			modOperationalStateUpdateStates();
 			break;
 		default:
