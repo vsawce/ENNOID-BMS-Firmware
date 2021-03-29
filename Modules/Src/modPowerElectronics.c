@@ -1240,6 +1240,9 @@ void modPowerElectronicsSamplePackAndLCData(void) {
 }
 
 void modPowerElectronicsSamplePackVoltage(float *voltagePointer) {
+
+	modPowerElectronicsGeneralConfigHandle->packVoltageDataSource = sourcePackVoltageSumOfIndividualCellVoltages; 
+
 	switch(modPowerElectronicsGeneralConfigHandle->packVoltageDataSource) {
 		case sourcePackVoltageNone:
 			break;

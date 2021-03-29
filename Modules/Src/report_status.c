@@ -87,8 +87,8 @@ void report_soc(void)
 void report_cell_and_bms_average_temperature_celsius(void)
 {
     send_index = 0; 
-    libBufferAppend_float32(data_buffer, pack_state->tempBatteryAverage,1e2,&send_index);
-	libBufferAppend_float32(data_buffer, pack_state->tempBMSAverage,1e2,&send_index);
+    libBufferAppend_float32(data_buffer, pack_state->tempBatteryAverage,1e1,&send_index);
+	libBufferAppend_float32(data_buffer, pack_state->tempBMSAverage,1e1,&send_index);
 	modCANTransmitStandardID((0x628 & 0xFFFFFFFF), data_buffer, send_index);
 }
 
@@ -103,8 +103,8 @@ void report_cell_temperature_celsius(void)
 void report_bms_board_temperature_celsius(void)
 {
     send_index = 0; 
-    libBufferAppend_float32(data_buffer, pack_state->tempBMSHigh,1e2,&send_index);
-	libBufferAppend_float32(data_buffer, pack_state->tempBMSLow,1e2,&send_index);
+    libBufferAppend_float32(data_buffer, pack_state->tempBMSHigh,1e1,&send_index);
+	libBufferAppend_float32(data_buffer, pack_state->tempBMSLow,1e1,&send_index);
 	modCANTransmitStandardID((0x630 & 0xFFFFFFFF), data_buffer, send_index);
 }
 

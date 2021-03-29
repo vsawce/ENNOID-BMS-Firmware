@@ -449,7 +449,6 @@ void modOperationalStateTask(void) {
 		modOperationalStateUpdateStates();
 	}
 	
-	
 	// Move the button pressed state to the status struct
 	modOperationalStatePackStatehandle->powerOnLongButtonPress = modPowerStateGetLongButtonPressState(); 
 	
