@@ -5,6 +5,12 @@
 #define ENNOID_HV
 // #define ENNOID_SS
 
+/* If define is true, will use power led to indicate safety fault, 
+	also it will disable original power led's function
+ */ 
+#define SAFETY_LED 1
+#define DISABLE_POWER_LED !SAFETY_LED
+
 // Firmware version
 #define FW_VERSION_MAJOR		1
 #define FW_VERSION_MINOR		2
