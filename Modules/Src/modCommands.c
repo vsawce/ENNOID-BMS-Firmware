@@ -270,6 +270,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			modCommandsGeneralConfig->externalEnableOperationalState                  = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->chargeEnableOperationalState                    = libBufferGet_uint8(data,&ind); // 1
 			modCommandsGeneralConfig->powerDownDelay                                  = libBufferGet_uint32(data,&ind);// 4
+			modCommandsGeneralConfig->humidityICType                                  = libBufferGet_uint8(data,&ind); // 1
 			
 			ind = 0;
 			modCommandsSendBuffer[ind++] = packet_id;
@@ -384,6 +385,7 @@ void modCommandsProcessPacket(unsigned char *data, unsigned int len) {
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->externalEnableOperationalState  ,&ind); // 1
 			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->chargeEnableOperationalState    ,&ind); // 1	
 			libBufferAppend_uint32(       modCommandsSendBuffer,modCommandsToBeSendConfig->powerDownDelay                  ,&ind); // 4
+			libBufferAppend_uint8(        modCommandsSendBuffer,modCommandsToBeSendConfig->humidityICType		               ,&ind); // 1
 			
 		  modCommandsSendPacket(modCommandsSendBuffer, ind);
 			break;

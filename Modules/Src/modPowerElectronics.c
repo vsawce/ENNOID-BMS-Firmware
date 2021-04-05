@@ -145,8 +145,11 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	// Init the external bus monitor
   modPowerElectronicsInitISL();
 	
-	#ifdef HWVersion_SS
-	driverSWSHT21Init();
+	#if (ENNOID_SS || ENNOID_SS_LITE)
+		if(modPowerElectronicsGeneralConfigHandle->humidityICType == si7020)
+			driverSWSHT21Init();
+		else
+			driverSWHTC1080Init();
 	#endif
 	
 	// Init internal ADC
@@ -194,22 +197,33 @@ bool modPowerElectronicsTask(void) {
     // Read the battery cell voltages and temperatures with the cell monitor ICs
 		modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();
 		
-		// get PCB mounted temperature sensor
-		#ifdef HWVersion_SS
-			static uint32_t measureSHTStartLastTick          = 0;
-			static driverSWSHT21MeasureType lastMeasuredType = TEMP;
-			if(driverSWSHT21PollMeasureReady()){
-				modPowerElectronicsPackStateHandle->temperatures[0] = driverSWSHT21GetTemperature();
-				modPowerElectronicsPackStateHandle->humidity        = driverSWSHT21GetHumidity();
-			}
-			if(modDelayTick1ms(&measureSHTStartLastTick,500)){
-				driverSWSHT21StartMeasurement(lastMeasuredType);
+		// get PCB mounted temperature sensor & humitity if applicable
+		#if (ENNOID_SS || ENNOID_SS_LITE)
+			if(modPowerElectronicsGeneralConfigHandle->humidityICType == si7020){
+				static uint32_t measureSHTStartLastTick          = 0;
+				static driverSWSHT21MeasureType lastMeasuredType = TEMP;
+				if(driverSWSHT21PollMeasureReady()){
+					modPowerElectronicsPackStateHandle->temperatures[0] = driverSWSHT21GetTemperature();
+					modPowerElectronicsPackStateHandle->humidity        = driverSWSHT21GetHumidity();
+				}
+				if(modDelayTick1ms(&measureSHTStartLastTick,500)){
+					driverSWSHT21StartMeasurement(lastMeasuredType);
 		
-			if(lastMeasuredType == TEMP)																																							// Toggle between SHT21 sensor modes
-				lastMeasuredType = HUMIDITY;
-			else
-				lastMeasuredType = TEMP;
-		}
+				if(lastMeasuredType == TEMP)																																							// Toggle between SHT21 sensor modes
+					lastMeasuredType = HUMIDITY;
+				else
+					lastMeasuredType = TEMP;
+				}
+			}else{
+				static uint32_t measureHTC1080StartLastTick          = 0;
+				if(driverSWHTC1080PollMeasureReady()){
+					modPowerElectronicsPackStateHandle->temperatures[0] = driverSWHTC1080GetTemperature();
+					modPowerElectronicsPackStateHandle->humidity        = driverSWHTC1080GetHumidity();
+				}
+				if(modDelayTick1ms(&measureHTC1080StartLastTick,500)){
+					driverSWHTC1080StartMeasurement();
+				}
+			};
 		#else
 			driverHWADCGetNTCValue(&modPowerElectronicsPackStateHandle->temperatures[0],modPowerElectronicsGeneralConfigHandle->NTC25DegResistance[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCTopResistor[modConfigNTCGroupMasterPCB],modPowerElectronicsGeneralConfigHandle->NTCBetaFactor[modConfigNTCGroupMasterPCB],25.0f);
 		#endif
@@ -536,16 +550,15 @@ void modPowerElectronicsUpdateSwitches(void) {
 	}else{
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	};
-	#ifdef HWVersion_SS
+	#if (ENNOID_SS || ENNOID_SS_LITE)
 	//Handle chargePFET input
 	if(modPowerElectronicsPackStateHandle->chargePFETDesired && modPowerElectronicsPackStateHandle->chargeAllowed){
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	}else{
 		driverHWSwitchesSetSwitchState(SWITCH_CHARGE_BYPASS,(driverHWSwitchesStateTypedef)SWITCH_RESET);
 	};
-	#endif
 	//Handle cooling output
-	#ifndef HWVersion_SS
+	#else
 	if(modPowerElectronicsPackStateHandle->coolingDesired && modPowerElectronicsPackStateHandle->coolingAllowed)
 		driverHWSwitchesSetSwitchState(SWITCH_COOLING,(driverHWSwitchesStateTypedef)SWITCH_SET);
 	else
@@ -1276,9 +1289,11 @@ float modPowerElectronicsCalcPackCurrent(void){
 void modPowerElectronicsLCSenseSample(void) {
 		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,initCurrentOffset, modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
 		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage, modPowerElectronicsGeneralConfigHandle->loadVoltageOffset, modPowerElectronicsGeneralConfigHandle->loadVoltageFactor);
-	#ifdef HWVersion_SS
+	
+	#if (ENNOID_SS || ENNOID_SS_LITE)
 		driverHWADCGetChargerVoltage(&modPowerElectronicsPackStateHandle->chargerVoltage, modPowerElectronicsGeneralConfigHandle->chargerVoltageOffset, modPowerElectronicsGeneralConfigHandle->chargerVoltageFactor);
 	#endif
+	
 	//Calculate the zero current offset
 	if(initCurrentOffsetCounter < 2){
 		//initCurrentOffsetTemp += modPowerElectronicsPackStateHandle->loCurrentLoadCurrent;

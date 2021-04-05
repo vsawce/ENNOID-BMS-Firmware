@@ -117,7 +117,7 @@ void modOperationalStateTask(void) {
 			}else{
 				modPowerElectronicsSetChargePFET(false);
 			};
-			#ifndef HWVersion_SS
+			#if (ENNOID_HV || ENNOID_LV) 
 				//Allow main contactors to close if load voltage is above pack voltage & below max allowed voltage, that means that the charger is connected to the load
 				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
 					modPowerElectronicsSetDisCharge(true);
@@ -174,7 +174,9 @@ void modOperationalStateTask(void) {
 			if(modPowerElectronicsSetDisCharge(true)) {
 				
 				if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
+					#if ENNOID_HV
 					modPowerElectronicsSetPreCharge(true);
+					#endif
 				}else{
 					modPowerElectronicsSetPreCharge(false);
 				}
@@ -347,7 +349,7 @@ void modOperationalStateTask(void) {
 					modPowerElectronicsSetChargePFET(true);
 				}
 				
-				#ifndef HWVersion_SS
+				#if (ENNOID_HV || ENNOID_LV)
 				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10.0f)){ 
 					modPowerElectronicsSetDisCharge(true);
 					if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
