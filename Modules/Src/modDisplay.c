@@ -66,7 +66,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 		if(modDisplayDispLoadShuffle == 4)
 				modDisplayDispLoadShuffle = 0;
 		
-	if(((modDisplayCurrentState != newState || memcmp(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef))) && ((modDelayTick1ms(&modDisplayLastRefresh,3000)) || modDisplayCurrentState != DISP_MODE_LOAD || newState != DISP_MODE_LOAD || modDisplayCurrentState != DISP_MODE_CHARGE || newState != DISP_MODE_CHARGE || modDisplayCurrentState != DISP_MODE_BALANCING || newState != DISP_MODE_BALANCING)) || toggleButtonPressedCounter) {											// Different state than last state?
+	if(modDisplayCurrentState != newState || (memcmp(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef)) && modDelayTick1ms(&modDisplayLastRefresh,2000)) || toggleButtonPressedCounter) {											// Different state than last state?
 		toggleButtonPressedCounter = false;
 		memcpy(&modDisplayDataLast,&modDisplayData,sizeof(modDisplayDataTypedef));
 		switch(newState) {
@@ -291,7 +291,6 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 			default:
 				break;
 		};
-		modDisplayLastRefresh = HAL_GetTick();
 	}
 	
 	modDisplayCurrentState = newState;
