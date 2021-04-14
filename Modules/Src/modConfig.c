@@ -117,9 +117,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
 	configLocation->packVoltageDataSource                          = sourcePackVoltageISL28022_2_BatteryIn; // Packvoltage source.
 	configLocation->packCurrentDataSource                          = sourcePackCurrentLowCurrentShunt; // The pack current is the same as the current through the low current shunt
-	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
-	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
-	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
+	configLocation->buzzerSignalSource                             = buzzerSourceOn;         // Stores what source shoud be taken to trigger
+	configLocation->buzzerSignalPersistant                         = false;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.051f;              		// Shunt factor low current
 	configLocation->voltageLCFactor	                               = 3.50f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
@@ -155,7 +154,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryError								     = 5000;										// Show error symbol for X seconds before going to powerdown in general error state.
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
-	configLocation->displayStyle															     = basic;										// Display style used for showing the SSD1306 data
+	configLocation->displayStyle															     = advanced;										// Display style used for showing the SSD1306 data
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
 	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
@@ -218,9 +217,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
 	configLocation->packVoltageDataSource                          = sourcePackVoltageISL28022_2_BatteryIn; // Packvoltage source.
 	configLocation->packCurrentDataSource                          = sourcePackCurrentLowCurrentShunt; // The pack current is the same as the current through the low current shunt
-	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
-	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
-	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
+	configLocation->buzzerSignalSource                             = buzzerSourceOn;         // Stores what source shoud be taken to trigger
+	configLocation->buzzerSignalPersistant                         = false;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.07f;              		// Shunt factor low current
 	configLocation->voltageLCFactor	                               = 47.5f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
@@ -256,7 +254,7 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->displayTimeoutBatteryError								     = 5000;										// Show error symbol for X seconds before going to powerdown in general error state.
 	configLocation->displayTimeoutBatteryErrorPreCharge				     = 10000;										// Show pre charge error for XX seconds.
 	configLocation->displayTimeoutSplashScreen								     = 3000;										// Display / INIT splash screen time.
-	configLocation->displayStyle															     = basic;										// Display style used for showing the SSD1306 data
+	configLocation->displayStyle															     = advanced;										// Display style used for showing the SSD1306 data
 	configLocation->maxUnderAndOverVoltageErrorCount 					     = 5;												// Max count of hard cell voltage errors.
 	configLocation->maxUnderAndOverTemperatureErrorCount 					 = 5;												// Max count of hard cell voltage errors.
 	configLocation->notUsedCurrentThreshold										     = 1.0f;										// If abs(packcurrent) < X.XA consider pack as not used.
@@ -320,9 +318,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
 	configLocation->packVoltageDataSource                          = sourcePackVoltageISL28022_2_BatteryIn; // Packvoltage source.
 	configLocation->packCurrentDataSource                          = sourcePackCurrentLowCurrentShunt; // The pack current is the same as the current through the low current shunt
-	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
-	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
-	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
+	configLocation->buzzerSignalSource                             = buzzerSourceOn;         // Stores what source shoud be taken to trigger
+	configLocation->buzzerSignalPersistant                         = false;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.0052f;              		// Shunt factor low current
 	configLocation->voltageLCFactor	                               = 1.35f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 
@@ -421,9 +418,8 @@ void modConfigLoadDefaultConfig(modConfigGeneralConfigStructTypedef *configLocat
 	configLocation->cellThrottleLowerMargin										     = 0.50f;									  // Margin of throttle from lower soft limits.	
 	configLocation->packVoltageDataSource                          = sourcePackVoltageISL28022_2_BatteryIn; // Packvoltage source.
 	configLocation->packCurrentDataSource                          = sourcePackCurrentLowCurrentShunt; // The pack current is the same as the current through the low current shunt
-	configLocation->buzzerSignalSource                             = buzzerSourceOff;         // Stores what source shoud be taken to trigger
-	configLocation->buzzerSignalType                               = buzzerSignalTypeOn;      // Stores what sound pattern should be made
-	configLocation->buzzerSignalPersistant                         = true;                    // Stores whether the buzzer should stay on after triggering
+	configLocation->buzzerSignalSource                             = buzzerSourceOn;         // Stores what source shoud be taken to trigger
+	configLocation->buzzerSignalPersistant                         = false;                    // Stores whether the buzzer should stay on after triggering
   configLocation->shuntLCFactor                                  = -0.0052f;              		// Shunt factor low current
 	configLocation->voltageLCFactor	                               = 1.35f;                   // Pack voltage factor 
 	configLocation->voltageLCOffset                                = 0;                       // Pack voltage offset 

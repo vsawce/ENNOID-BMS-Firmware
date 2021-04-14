@@ -735,17 +735,6 @@ typedef enum {
 } buzzerSignalSourceEnum;
 
 typedef enum {
-  buzzerSignalTypeOff = 0,
-  buzzerSignalTypeOn,
-  buzzerSignalTypeToggle,
-  buzzerSignalTypeToggleFast,
-  buzzerSignalTypePulseShort,
-  buzzerSignalTypePulseLong,
-  buzzerSignalTypePulse200_20,
-  buzzerSignalTypePulse1000_4	
-} buzzerSignalType;
-
-typedef enum {
 	canEmitProtocolNone = 0,
   canEmitProtocolDieBieEngineering,
 	canEmitProtocolMGElectronics

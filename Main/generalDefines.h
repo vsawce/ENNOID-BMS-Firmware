@@ -8,11 +8,11 @@
 #endif
 
 #ifndef ENNOID_LV
-#define ENNOID_LV					0
+#define ENNOID_LV					1
 #endif
 
 #ifndef ENNOID_HV
-#define ENNOID_HV					1
+#define ENNOID_HV					0
 #endif
 
 // Firmware version

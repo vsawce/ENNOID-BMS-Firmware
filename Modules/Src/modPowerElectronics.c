@@ -234,9 +234,6 @@ bool modPowerElectronicsTask(void) {
 		// Do the balancing task
 		modPowerElectronicsSubTaskBalancing();
 		
-		// Handle buzzer desires
-		modPowerElectronicsSubTaskBuzzer();
-		
 		// Measure cell voltages
 		modPowerElectronicsCellMonitorsStartCellConversion();
 		
@@ -877,41 +874,6 @@ void modPowerElectronicsCheckPackSOA(void) {
 		}
 	}else{
 		modPowerElectronicsSOAChargeChangeLastTick = HAL_GetTick();
-	}
-}
-
-
-void modPowerElectronicsSubTaskBuzzer(void) {
-  bool buzzerEnabledState = false;
-	
-	// determin whether buzzer should sound
-  switch(modPowerElectronicsGeneralConfigHandle->buzzerSignalSource) {
-		case buzzerSourceOff:
-			buzzerEnabledState = false;
-			break;
-		case buzzerSourceOn:
-			buzzerEnabledState = true;
-			break;
-		case buzzerSourceLC:
-			break;
-		case buzzerSourceSOA:
-			break;
-		default:
-			buzzerEnabledState = false;
-			break;
-	}
-	
-  // update buzzer state every second
-	if(modDelayTick1ms(&modPowerElectronicsBuzzerUpdateIntervalLastTick,1000)) {
-		if(buzzerEnabledState) {
-		  modEffectChangeState(STAT_BUZZER,(STATStateTypedef)modPowerElectronicsGeneralConfigHandle->buzzerSignalType);
-			modPowerElectronicsPackStateHandle->buzzerOn = true;
-		}else{
-		  if(!modPowerElectronicsGeneralConfigHandle->buzzerSignalPersistant) {
-				modEffectChangeState(STAT_BUZZER,STAT_RESET);
-				modPowerElectronicsPackStateHandle->buzzerOn = false;
-			}
-		}
 	}
 }
 
