@@ -112,7 +112,7 @@ void modOperationalStateTask(void) {
 			}
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			modPowerElectronicsSetCharge(true);
-			if(modOperationalStatePackStatehandle->packCurrent >= 0.5f | modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+			if(modOperationalStatePackStatehandle->packCurrent >= 0.5f || modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
 				modPowerElectronicsSetChargePFET(true);
 			}else{
 				modPowerElectronicsSetChargePFET(false);
@@ -184,7 +184,7 @@ void modOperationalStateTask(void) {
 				}
 			  if(modPowerStateChargerDetected()){
 					modPowerElectronicsSetCharge(modOperationalStateGeneralConfigHandle->allowChargingDuringDischarge);
-					if(modOperationalStatePackStatehandle->packCurrent >= 0.5f | modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+					if(modOperationalStatePackStatehandle->packCurrent >= 0.5f || modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
 						modPowerElectronicsSetChargePFET(true);
 					}
 				}else{
@@ -359,7 +359,7 @@ void modOperationalStateTask(void) {
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			if(modOperationalStatePackStatehandle->chargeAllowed){
 				modPowerElectronicsSetCharge(true);
-				if(modOperationalStatePackStatehandle->packCurrent >= 0.5f| modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+				if(modOperationalStatePackStatehandle->packCurrent >= 0.5f || modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
 					modPowerElectronicsSetChargePFET(true);
 				}
 				
