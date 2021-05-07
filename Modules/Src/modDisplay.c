@@ -105,7 +105,7 @@ void modDisplayShowInfo(modDisplayInfoType newState, modDisplayDataTypedef modDi
 						libGraphicsSetCursor(7,32);
 						libGraphicsWrite('I');
 						libGraphicsWrite(':');
-						modDisplayWrite(modDisplayData.Current,1);
+						modDisplayWrite(modDisplayData.Current,2);
 						libGraphicsWrite('A');							
 					}else if(modDisplayDispLoadShuffle == 1){
 					//Display Battery Voltage

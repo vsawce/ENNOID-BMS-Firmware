@@ -923,10 +923,9 @@ void modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData(void){
 			// TODO: Implement
 			
 			// Read cell voltages
-			if(!modPowerElectronicsPackStateHandle->balanceActive){
 			driverSWLTC6804ReadCellVoltagesArray(modPowerElectronicsPackStateHandle->cellModuleVoltages);
 			modPowerElectronicsCellMonitorsArrayTranslate();
-			}
+			
 				
 			// Convert modules to full array
 			
@@ -988,15 +987,14 @@ void modPowerElectronicsExpMonitorsArrayTranslate(void) {
 
 void modPowerElectronicsCellMonitorsStartCellConversion(void) {
 	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
-	driverSWLTC6804StartCellAndAuxVoltageConversion(MD_FILTERED,DCP_ENABLED);
 	driverSWLTC6804ResetCellVoltageRegisters();
+	driverSWLTC6804StartCellVoltageConversion(MD_FILTERED,DCP_DISABLED,CELL_CH_ALL);
 }
 
 void modPowerElectronicsCellMonitorsStartLoadedCellConversion(bool PUP) {
 	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
-
-				driverSWLTC6804StartLoadedCellVoltageConversion(MD_FILTERED,DCP_ENABLED,CELL_CH_ALL,PUP);
-				driverSWLTC6804ResetCellVoltageRegisters();
+	driverSWLTC6804ResetCellVoltageRegisters();
+	driverSWLTC6804StartLoadedCellVoltageConversion(MD_FILTERED,DCP_ENABLED,CELL_CH_ALL,PUP);
 }
 
 void modPowerElectronicsCellMonitorsStartTemperatureConversion(void) {
@@ -1072,10 +1070,10 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 	
 	
 	// Start of connection test
-	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait 
+	while(!modDelayTick100ms(&delayLastTick,2)){};                     // Wait 
 	modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
 	modPowerElectronicsCellMonitorsStartCellConversion();              // Start ADC conversion
-	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait
+	while(!modDelayTick100ms(&delayLastTick,2)){};                     // Wait
   modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	   // Read cell voltages from monitor
 	for(cellIDPointer = 0; cellIDPointer < modPowerElectronicsGeneralConfigHandle->noOfCellsSeries ; cellIDPointer++){
 	  conversionResults[4][cellIDPointer] = modPowerElectronicsPackStateHandle->cellVoltagesIndividual[cellIDPointer].cellVoltage;
@@ -1120,13 +1118,13 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 		if((conversionResults[0][cellIDPointer] >= modPowerElectronicsGeneralConfigHandle->cellHardOverVoltage) || (conversionResults[0][cellIDPointer] <= modPowerElectronicsGeneralConfigHandle->cellHardUnderVoltage)) {
 			overAllPassFail = passFail = false;
 		}else{
-			if((cellIDPointer != 0) && (cellIDPointer != 11) && (cellIDPointer != 1) && (fabs(difference) >= 0.05f))
+			if((cellIDPointer != 0) && (cellIDPointer != (modPowerElectronicsGeneralConfigHandle->noOfCellsSeries-1)) && (fabs(difference) >= 0.05f))
 				overAllPassFail = passFail = false;
 			else
 			  passFail = true;
 		}
 		
-	  modCommandsPrintf("[%2d] %.3fV - %.3fV = % .3fV -> %s",cellIDPointer,conversionResults[0][cellIDPointer],conversionResults[1][cellIDPointer],difference,passFail ? "Pass" : "Fail");  // Print the results
+	  modCommandsPrintf("[%2d] %.3fV - %.3fV = % .3fV -> %s",cellIDPointer+1,conversionResults[0][cellIDPointer],conversionResults[1][cellIDPointer],difference,passFail ? "Pass" : "Fail");  // Print the results
 	}
 	modCommandsPrintf("------    End connectionTest     ------");
 	modCommandsPrintf("------    Start balance test     ------");
@@ -1143,7 +1141,7 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 	for(int delay = 0; delay < 5; delay++){
 		while(!modDelayTick100ms(&delayLastTick,3)){};                   // Wait
 		modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	 // Read cell voltages from monitor
-		modPowerElectronicsCellMonitorsStartCellConversion();            // Start ADC conversion
+		modPowerElectronicsCellMonitorsStartLoadedCellConversion(false);            // Start ADC conversion
 	}
 		
 	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait
@@ -1161,7 +1159,7 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 	for(int delay = 0; delay < 5; delay++){
 		while(!modDelayTick100ms(&delayLastTick,3)){};                   // Wait
 		modPowerElectronicsCellMonitorsCheckConfigAndReadAnalogData();	 // Read cell voltages from monitor
-		modPowerElectronicsCellMonitorsStartCellConversion();            // Start ADC conversion
+		modPowerElectronicsCellMonitorsStartLoadedCellConversion(false); // Start ADC conversion
 	}
 		
 	while(!modDelayTick100ms(&delayLastTick,3)){};                     // Wait
@@ -1181,7 +1179,7 @@ void modPowerElectronicsTerminalCellConnectionTest(int argc, const char **argv) 
 		else
 			overAllPassFail = passFail = false;
 		
-	  modCommandsPrintf("[%2d] %.3fV - %.3fV = % .3fV -> %s",cellIDPointer,conversionResults[2][cellIDPointer],conversionResults[3][cellIDPointer],difference,passFail ? "Pass" : "Fail");  // Print the results
+	  modCommandsPrintf("[%2d] %.3fV - %.3fV = % .3fV -> %s",cellIDPointer+1,conversionResults[2][cellIDPointer],conversionResults[3][cellIDPointer],difference,passFail ? "Pass" : "Fail");  // Print the results
 	}
 	
 	modCommandsPrintf("------    End balance test     ------");
