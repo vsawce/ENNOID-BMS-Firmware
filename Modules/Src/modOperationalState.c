@@ -394,7 +394,6 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
 			break;
 		case OP_STATE_CHARGED:
-			// Sound the beeper indicating charging done
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Indicate Charged
 			modOperationalStateUpdateStates();

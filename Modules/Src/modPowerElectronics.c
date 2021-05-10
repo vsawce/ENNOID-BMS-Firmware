@@ -1000,10 +1000,10 @@ void modPowerElectronicsCellMonitorsStartLoadedCellConversion(bool PUP) {
 void modPowerElectronicsCellMonitorsStartTemperatureConversion(void) {
 	modPowerElectronicsCellMonitorsCheckAndSolveInitState();
 	
-      // GPIO1 & GPIO2 aux are measured simultaniously with cell voltages.
 			// For other GPIOs voltages conversions, the below functions are used.
-				driverSWLTC6804StartAuxVoltageConversion(MD_FILTERED, AUX_CH_ALL);
 				driverSWLTC6804ResetAuxRegisters();
+				driverSWLTC6804StartAuxVoltageConversion(MD_FILTERED, AUX_CH_ALL);
+				
 }
 
 void modPowerElectronicsCellMonitorsEnableBalanceResistors(uint32_t balanceEnableMask){
