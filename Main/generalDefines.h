@@ -4,7 +4,7 @@
 #endif
 
 #ifndef ENNOID_SS
-#define ENNOID_SS					1
+#define ENNOID_SS					0
 #endif
 
 #ifndef ENNOID_LV
@@ -12,7 +12,7 @@
 #endif
 
 #ifndef ENNOID_HV
-#define ENNOID_HV					0
+#define ENNOID_HV					1
 #endif
 
 // Firmware version
