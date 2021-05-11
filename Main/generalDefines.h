@@ -1,6 +1,6 @@
 // Define the hardware version here:
 #ifndef ENNOID_SS_LITE
-#define ENNOID_SS_LITE		0
+#define ENNOID_SS_LITE		1
 #endif
 
 #ifndef ENNOID_SS
@@ -12,7 +12,7 @@
 #endif
 
 #ifndef ENNOID_HV
-#define ENNOID_HV					1
+#define ENNOID_HV					0
 #endif
 
 // Firmware version
