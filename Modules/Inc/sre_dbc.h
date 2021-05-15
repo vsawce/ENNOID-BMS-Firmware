@@ -396,15 +396,15 @@ static inline dbc_message_header_t dbc_encode_BMS_Temperature_Average(uint8_t by
   uint64_t raw = 0;
   memset(bytes, 0, 8);
 
-  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100 -> 100]
-  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_Cell_Temperature_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 and offset=-100 within range of [-100 -> 100]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_Cell_Temperature_Average,100.0f),-100.0f) - (-100)) / 0.1f) + 0.5f)) & 0xffffffff;
   bytes[0] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B0
   bytes[1] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B8
   bytes[2] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B16
   bytes[3] |= (((uint8_t)(raw >> 24) & 0xff)     ); // 8 bits at B24
 
-  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100 -> 100]
-  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_Board_Temperature_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 and offset=-100 within range of [-100 -> 100]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_Board_Temperature_Average,100.0f),-100.0f) - (-100)) / 0.1f) + 0.5f)) & 0xffffffff;
   bytes[4] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B32
   bytes[5] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B40
   bytes[6] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B48
@@ -492,8 +492,8 @@ static inline dbc_message_header_t dbc_encode_BMS_Load_Power(uint8_t bytes[8], c
   uint64_t raw = 0;
   memset(bytes, 0, 8);
 
-  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [0 -> 80]
-  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_Load_Power,80.0f),0.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 and offset=-100000 within range of [-100000 -> 100000]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_Load_Power,100000.0f),-100000.0f) - (-100000)) / 0.1f) + 0.5f)) & 0xffffffff;
   bytes[0] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B0
   bytes[1] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B8
   bytes[2] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B16
@@ -737,9 +737,9 @@ static inline bool dbc_decode_BMS_Temperature_Average(dbc_BMS_Temperature_Averag
   raw |= ((uint64_t)((bytes[2]))) << 16; // 8 bits from B16
   raw |= ((uint64_t)((bytes[3]))) << 24; // 8 bits from B24
   if (raw & (1 << 31)) { // Check signed bit of the raw DBC signal and sign extend from 'raw'
-    message->BMS_Cell_Temperature_Average = ((((UINT32_MAX << 31) | raw) * 0.1f));
+    message->BMS_Cell_Temperature_Average = ((((UINT32_MAX << 31) | raw) * 0.1f) + (-100));
   } else {
-    message->BMS_Cell_Temperature_Average = ((raw * 0.1f));
+    message->BMS_Cell_Temperature_Average = ((raw * 0.1f) + (-100));
   }
 
   raw  = ((uint64_t)((bytes[4]))); // 8 bits from B32
@@ -747,9 +747,9 @@ static inline bool dbc_decode_BMS_Temperature_Average(dbc_BMS_Temperature_Averag
   raw |= ((uint64_t)((bytes[6]))) << 16; // 8 bits from B48
   raw |= ((uint64_t)((bytes[7]))) << 24; // 8 bits from B56
   if (raw & (1 << 31)) { // Check signed bit of the raw DBC signal and sign extend from 'raw'
-    message->BMS_Board_Temperature_Average = ((((UINT32_MAX << 31) | raw) * 0.1f));
+    message->BMS_Board_Temperature_Average = ((((UINT32_MAX << 31) | raw) * 0.1f) + (-100));
   } else {
-    message->BMS_Board_Temperature_Average = ((raw * 0.1f));
+    message->BMS_Board_Temperature_Average = ((raw * 0.1f) + (-100));
   }
 
   message->mia_info.mia_counter = 0;
@@ -845,9 +845,9 @@ static inline bool dbc_decode_BMS_Load_Power(dbc_BMS_Load_Power_s *message, cons
   raw |= ((uint64_t)((bytes[2]))) << 16; // 8 bits from B16
   raw |= ((uint64_t)((bytes[3]))) << 24; // 8 bits from B24
   if (raw & (1 << 31)) { // Check signed bit of the raw DBC signal and sign extend from 'raw'
-    message->BMS_Load_Power = ((((UINT32_MAX << 31) | raw) * 0.1f));
+    message->BMS_Load_Power = ((((UINT32_MAX << 31) | raw) * 0.1f) + (-100000));
   } else {
-    message->BMS_Load_Power = ((raw * 0.1f));
+    message->BMS_Load_Power = ((raw * 0.1f) + (-100000));
   }
 
   message->mia_info.mia_counter = 0;

@@ -131,7 +131,7 @@ void report_bms_board_temperature_celsius(void)
 
 void report_load_power_w(void)
 {
-    float load_power;
+    static float load_power;
     load_power = pack_state->loCurrentLoadVoltage * pack_state->loCurrentLoadCurrent;
 
     static dbc_BMS_Load_Power_s load_power_info; 
