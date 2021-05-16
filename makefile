@@ -105,55 +105,46 @@ CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -D STM32F303xC
 CFLAGS += -D USE_HAL_DRIVER
 
-LINKER_FLAGS = -Wl,-Map=main.map -Wl,--gc-sections
+LINKER_FLAGS = -Wl,-Map=ENNOID-BMS.map -Wl,--gc-sections
 
 OPENOCD_FLAGS = -f interface/stlink-v2.cfg -f target/stm32f3x.cfg
 
-all: main.elf main.bin main.hex
+all: ENNOID-BMS.elf ENNOID-BMS.bin
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ -lm
 
 # $(OBJS): | build/
+# $(OBJCOPY) -O binary $< $@
 
-main.elf: $(OBJS)
+ENNOID-BMS.elf: $(OBJS)
 	$(CC) -T$(LINKER_SCRIPT) $(CFLAGS) $(LINKER_FLAGS) $^ -o $@
 
-main.bin: main.elf
+ENNOID-BMS.bin: ENNOID-BMS.elf
 	$(OBJCOPY) -O binary $< $@
 
-main.hex: main.elf
-	$(OBJCOPY) -O ihex $< $@
+upload-stlink: ENNOID-BMS.elf
+	openocd $(OPENOCD_FLAGS) -c "program ENNOID-BMS.elf reset exit"
 
-upload-stlink: main.elf
-	openocd $(OPENOCD_FLAGS) -c "program main.elf reset exit"
-
-upload-bin-stlink: main.bin
-	openocd $(OPENOCD_FLAGS) -c "program main.bin reset verify exit 0x08000000"
-
-upload-hex-stlink: main.hex
-	openocd $(OPENOCD_FLAGS) -c "program main.hex reset verify exit"
+upload-bin-stlink: ENNOID-BMS.bin
+	openocd $(OPENOCD_FLAGS) -c "program ENNOID-BMS.bin reset verify exit 0x08000000"
 
 OPENOCD_JLINK_FLAGS = -f interface/jlink.cfg -f GCC/jlink.cfg -f target/stm32f3x.cfg
-upload: main.elf
-	openocd $(OPENOCD_JLINK_FLAGS) -c "init" -c "reset init" -c "flash write_image erase main.elf" -c "reset" -c "shutdown"
+#upload: main.elf
+	#openocd $(OPENOCD_JLINK_FLAGS) -c "init" -c "reset init" -c "flash write_image erase ENNOID-BMS.elf" -c "reset" -c "shutdown"
 
-upload-hex: main.hex
-	openocd $(OPENOCD_JLINK_FLAGS) -c "init" -c "reset init" -c "flash write_image erase main.hex" -c "reset" -c "shutdown"
-
-upload-bin: main.bin
-	openocd $(OPENOCD_JLINK_FLAGS) -c "program main.bin reset verify exit 0x08000000"
+upload-bin: ENNOID-BMS.bin
+	openocd $(OPENOCD_JLINK_FLAGS) -c "program ENNOID-BMS.bin reset verify exit 0x08000000"
 
 connect:
 	openocd $(OPENOCD_FLAGS)
 
 debug:
-	arm-none-eabi-gdb --eval-command="target remote localhost:3333" main.elf
+	arm-none-eabi-gdb --eval-command="target remote localhost:3333" ENNOID-BMS.elf
 
 clean:
-	rm main.elf
-	rm main.bin
-	rm main.hex
+	rm ENNOID-BMS.elf
+	rm ENNOID-BMS.bin
 	rm Main/main.o
 	rm Modules/Src/*.o
 	rm Libraries/Scr/*.o
