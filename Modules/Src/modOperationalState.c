@@ -56,7 +56,7 @@ void modOperationalStateInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modDisplayInit();
 	
 	//Init Expansion temperature modules
-	driverSWADC128D818Init(modOperationalStateGeneralConfigHandle->noOfExpansionBoard,  8);
+	driverSWADC128D818Init(modOperationalStateGeneralConfigHandle->noOfExpansionBoard,  modOperationalStateGeneralConfigHandle->noOfTempSensorPerExpansionBoard);
 	
 	
 	modOperationalStateNotUsedTime = HAL_GetTick();
