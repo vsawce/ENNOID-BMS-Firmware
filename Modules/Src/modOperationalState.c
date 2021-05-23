@@ -56,8 +56,7 @@ void modOperationalStateInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modDisplayInit();
 	
 	//Init Expansion temperature modules
-	driverSWADC128D818Init(modOperationalStateGeneralConfigHandle->noOfExpansionBoard,  modOperationalStateGeneralConfigHandle->noOfTempSensorPerExpansionBoard);
-	
+	driverSWADC128D818Init(modOperationalStateGeneralConfigHandle->noOfExpansionBoard, 8);
 	
 	modOperationalStateNotUsedTime = HAL_GetTick();
 	modOperationalStateNotUsedResetDelay = HAL_GetTick();
@@ -112,12 +111,12 @@ void modOperationalStateTask(void) {
 			}
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			modPowerElectronicsSetCharge(true);
-			if(modOperationalStatePackStatehandle->packCurrent >= 0.5f | modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+			if(modOperationalStatePackStatehandle->packCurrent >= 0.5f || modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
 				modPowerElectronicsSetChargePFET(true);
 			}else{
 				modPowerElectronicsSetChargePFET(false);
 			};
-			#ifndef HWVersion_SS
+			#if (ENNOID_HV || ENNOID_LV) 
 				//Allow main contactors to close if load voltage is above pack voltage & below max allowed voltage, that means that the charger is connected to the load
 				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10)){ 
 					modPowerElectronicsSetDisCharge(true);
@@ -152,6 +151,8 @@ void modOperationalStateTask(void) {
 			else{
 				modPowerElectronicsSetPreCharge(false);
 				modOperationalStatePreChargeTimeout = HAL_GetTick();
+				if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
+					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);	
 			}
 			
 			if((modOperationalStatePackStatehandle->loCurrentLoadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeLCAllowed || modOperationalStateForceOn)) {
@@ -174,15 +175,20 @@ void modOperationalStateTask(void) {
 			if(modPowerElectronicsSetDisCharge(true)) {
 				
 				if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
+					#if ENNOID_HV
 					modPowerElectronicsSetPreCharge(true);
+					#endif
 				}else{
 					modPowerElectronicsSetPreCharge(false);
 				}
 			  if(modPowerStateChargerDetected()){
 					modPowerElectronicsSetCharge(modOperationalStateGeneralConfigHandle->allowChargingDuringDischarge);
-					if(modOperationalStatePackStatehandle->packCurrent >= 0.5f| modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+					if(modOperationalStatePackStatehandle->packCurrent >= 0.5f || modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
 						modPowerElectronicsSetChargePFET(true);
 					}
+				}else{
+					modPowerElectronicsSetCharge(false);
+					modPowerElectronicsSetChargePFET(false);
 				}
 			}else{
 				modOperationalStateSetNewState(OP_STATE_PRE_CHARGE);
@@ -190,6 +196,8 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetCharge(false);
 				modPowerElectronicsSetChargePFET(false);
 			}
+			
+			modEffectChangeState(STAT_BUZZER,STAT_RESET);
 			
 			//Cooling/Heating
 			if(modOperationalStatePackStatehandle->coolingAllowed )
@@ -211,7 +219,8 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetCharge(false);
 				modOperationalStatePackStatehandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
-				
+				if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
+					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);	
 			}
 
 			
@@ -269,6 +278,8 @@ void modOperationalStateTask(void) {
 			modPowerElectronicsDisableAll();																				// Disable all power paths
 			modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
 			modEffectChangeState(STAT_LED_DEBUG,STAT_RESET);
+			if(!modOperationalStateGeneralConfigHandle->buzzerSignalPersistant)
+				modEffectChangeState(STAT_BUZZER,STAT_RESET);
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,modOperationalStateGeneralConfigHandle->powerDownDelay))	{					// Wait for the power down delay time to pass
@@ -296,8 +307,10 @@ void modOperationalStateTask(void) {
 				modOperationalStatePackStatehandle->powerDownDesired = true;
 			}
 		
-			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
-			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			modEffectChangeStateError(STAT_LED_DEBUG,STAT_ERROR,modOperationalStatePackStatehandle->faultState);										// Turn flash fast on debug and power LED
+			modEffectChangeStateError(STAT_LED_POWER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
+			if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
+				modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);			// Turn flash fast on debug and power LED
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.FaultCode = modOperationalStatePackStatehandle->faultState;
@@ -316,6 +329,8 @@ void modOperationalStateTask(void) {
 		
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
 			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
+					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_ERROR_PRECHARGE,modOperationalStateDisplayData);
@@ -343,11 +358,11 @@ void modOperationalStateTask(void) {
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			if(modOperationalStatePackStatehandle->chargeAllowed){
 				modPowerElectronicsSetCharge(true);
-				if(modOperationalStatePackStatehandle->packCurrent >= 0.5f| modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
+				if(modOperationalStatePackStatehandle->packCurrent >= 0.5f || modOperationalStatePackStatehandle->packCurrent >= modOperationalStateGeneralConfigHandle->chargerEnabledThreshold){
 					modPowerElectronicsSetChargePFET(true);
 				}
 				
-				#ifndef HWVersion_SS
+				#if (ENNOID_HV || ENNOID_LV)
 				if(modOperationalStatePackStatehandle->packVoltage-modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStatePackStatehandle->packVoltage*0.1f) && modOperationalStatePackStatehandle->loCurrentLoadVoltage < (modOperationalStateGeneralConfigHandle->noOfCellsSeries*modOperationalStateGeneralConfigHandle->cellHardOverVoltage+10.0f)){ 
 					modPowerElectronicsSetDisCharge(true);
 					if(modOperationalStateGeneralConfigHandle->LCUsePrecharge==forced){
@@ -378,7 +393,6 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_100_20);								// Indicate balancing
 			break;
 		case OP_STATE_CHARGED:
-			// Sound the beeper indicating charging done
 			modOperationalStateHandleChargerDisconnect(OP_STATE_POWER_DOWN);
 			modEffectChangeState(STAT_LED_POWER,STAT_BLINKSHORTLONG_1000_4);								// Indicate Charged
 			modOperationalStateUpdateStates();
@@ -471,7 +485,7 @@ void modOperationalStateSetNewState(OperationalStateTypedef newState) {
 };
 
 void modOperationalStateHandleChargerDisconnect(OperationalStateTypedef newState) {
-	if(modPowerStateChargerDetected()){
+	if(modPowerStateChargerDetected() && !((modOperationalStatePackStatehandle->packCurrent < modOperationalStateGeneralConfigHandle->chargerEnabledThreshold ) && modOperationalStatePackStatehandle->chargeDesired && modOperationalStatePackStatehandle->chargeAllowed)) {
 		modOperationalStateChargerDisconnectDetectDelay = HAL_GetTick();
 	}else{
 		if(modDelayTick1ms(&modOperationalStateChargerDisconnectDetectDelay,modOperationalStateGeneralConfigHandle->timeoutChargerDisconnected)){
