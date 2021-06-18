@@ -34,6 +34,8 @@
 
 #include "safety_check.h"
 #include "report_status.h"
+#include "state_of_charge.h"
+#include "state_of_health.h"
 // This next define enables / disables the watchdog
 //#define AllowDebug
 
@@ -73,7 +75,7 @@ int main(void) {
   // SRE Code
   safety_check_init(&packState); 
   report_status_init(&packState); 
-  state_of_charge_init(&packState); 
+  // state_of_charge_init(&packState); 
 
   while(true) {
 		modEffectTask();
@@ -85,7 +87,7 @@ int main(void) {
     
     // SRE Tasks
     safety_check_task(); 
-    state_of_charge_task(); 
+    // state_of_charge_task(); 
     report_status_task(); 
 		
 		if(modPowerElectronicsTask())																						// Handle power electronics task
