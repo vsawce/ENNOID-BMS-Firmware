@@ -28,23 +28,25 @@ EV.8.4.2 Cell Voltage levels must remain inside the allowed minimum and maximum 
 
 EV.8.5.2 Temperatures must remain below the allowed maximum cell temperature limit stated in the cell data sheet or 60°C, whichever is lower. Measurement accuracy must be considered.
 
-## Compiling with ARM-GCC
-You can manipulate the makefile to choose which files you want included in the compilation.
+## How to Compile the BMS firmware
+
+#### Ubuntu
+1. `sudo apt update` and `sudo apt upgrade`
+2. `sudo apt install make` and `sudo apt install gcc-arm-none-eabi`
+3. In SRE-BMS-Firmware folder, run make
 
 #### Windows
 1. Install WSL using the Ubuntu distro
-2. In the WSL terminal, `sudo apt-get update` and `sudo apt update`
+2. In the WSL terminal, `sudo apt update` and `sudo apt upgrade`
 3. `sudo apt install make` and `sudo apt install gcc-arm-none-eabi`
-4. Run the makefile in the root directory by running `make`.
+4. In SRE-BMS-Firmware folder, run make
 
-#### Ubuntu/Linux Mint
-1. In the WSL terminal, `sudo apt-get update` and `sudo apt update`
-2. `sudo apt install make` and `sudo apt install gcc-arm-none-eabi`
-3. Run the makefile in the root directory by running `make`.
+#### Mac
+Mac OS and cross-platform support is in progress
 
 [Downlaod ENNOID-BMS GUI tool](https://github.com/EnnoidMe/ENNOID-BMS-Tool)
 
-## Memory Information
+## Memory Map
 
 When flashing the application the start address should be: <b>0x08000000</b>
 When flashing the bootloader the start address should be: <b>0x08032000</b>
