@@ -1,4 +1,4 @@
-# GCC makefile for ENNOID-BMS-SS firmware
+# GCC makefile for SRE-BMS-Firmware
 
 SRCS  = ./Main/main.c
 SRCS += ./Modules/Src/modCAN.c
@@ -73,7 +73,7 @@ SRCS += ./Libraries/Scr/libGraphics.c
 SRCS += ./Libraries/Scr/libPacket.c
 SRCS += ./Libraries/Scr/libRingbuffer.c
 
-SRCS += ./GCC/EBMS-startup.c
+SRCS += ./gcc/EBMS-startup.c
 
 # TODO: place object files in separate directory
 OBJS = $(SRCS:.c=.o)
@@ -88,7 +88,7 @@ INCLUDE += -I ./Libraries/Inc
 INCLUDE += -I ./Modules/Inc
 INCLUDE += -I ./CubeMX/Inc
 
-LINKER_SCRIPT = ./GCC/EBMS-linker.ld
+LINKER_SCRIPT = ./gcc/EBMS-linker.ld
 
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
@@ -129,7 +129,7 @@ upload-stlink: ENNOID-BMS.elf
 upload-bin-stlink: ENNOID-BMS.bin
 	openocd $(OPENOCD_FLAGS) -c "program ENNOID-BMS.bin reset verify exit 0x08000000"
 
-OPENOCD_JLINK_FLAGS = -f interface/jlink.cfg -f GCC/jlink.cfg -f target/stm32f3x.cfg
+OPENOCD_JLINK_FLAGS = -f interface/jlink.cfg -f gcc/jlink.cfg -f target/stm32f3x.cfg
 #upload: main.elf
 	#openocd $(OPENOCD_JLINK_FLAGS) -c "init" -c "reset init" -c "flash write_image erase ENNOID-BMS.elf" -c "reset" -c "shutdown"
 
@@ -152,4 +152,4 @@ clean:
 	rm Drivers/SWDrivers/Src/*.o
 	rm Drivers/STM32F3xx_HAL_Driver/Src/*.o
 	rm Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/*.o
-	rm GCC/*.o
+	rm gcc/*.o
