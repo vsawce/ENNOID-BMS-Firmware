@@ -12,7 +12,7 @@ static modPowerElectronicsPackStateTypedef *pack_state;
 
 void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state) 
 {
-    pack_state = copy_pack_state; 
+    pack_state = copy_pack_state;
 }
 
 void safety_check_task(void) 
