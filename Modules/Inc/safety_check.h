@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "modPowerElectronics.h"
+#include "modConfig.h"
 
 typedef struct 
 {
@@ -19,7 +20,7 @@ typedef struct
 
 } safety_status_s; 
 
-void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state); 
+void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state, modConfigGeneralConfigStructTypedef *copy_pack_configuration);
 void safety_check_task(void); 
 bool safety_check_cell_over_voltage(void);
 bool safety_check_cell_under_voltage(void);

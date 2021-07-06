@@ -9,31 +9,43 @@
 static safety_status_s safety_status; 
 
 static modPowerElectronicsPackStateTypedef *pack_state;
+static modConfigGeneralConfigStructTypedef *pack_configuration; 
 
-void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state) 
+static bool safty_feature; 
+
+void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state, modConfigGeneralConfigStructTypedef *copy_pack_configuration) 
 {
     pack_state = copy_pack_state;
+    pack_configuration = copy_pack_configuration;
+    pack_configuration->buzzerSignalSource = 1; 
 }
 
 void safety_check_task(void) 
 {
-
     safety_status.status_is_ok = (safety_check_cell_over_voltage() & safety_check_cell_under_voltage() 
                                 & safety_check_cell_over_temperature() & safety_check_bms_board_over_temperature()
                                 & safety_check_power_exceed_80kw()); 
 
+    if (pack_configuration->buzzerSignalSource) {
+        safty_feature = true;
+    } else {
+        safty_feature = false; 
+        modEffectChangeState(STAT_LED_POWER,STAT_RESET);
+    }
+
     if (safety_status.status_is_ok) {
         safety_status.bms_fault_data[0] = 0 & 0xFF; 
 
-        #if SAFETY_LED
-         modEffectChangeState(STAT_LED_POWER,STAT_RESET);
-        #endif 
+        if (safty_feature) {
+            modEffectChangeState(STAT_LED_POWER,STAT_RESET);
+        }
+
     } else {
         safety_status.bms_fault_data[0] = 0xFF; 
-
-        #if SAFETY_LED
-         modEffectChangeState(STAT_LED_POWER,STAT_SET);
-        #endif 
+        
+        if (safty_feature) {
+            modEffectChangeState(STAT_LED_POWER,STAT_SET);
+        }
     }
 }
 
@@ -41,7 +53,7 @@ bool safety_check_cell_over_voltage(void)
 {
     bool cell_is_ok = false; 
 
-    if (pack_state->cellVoltageHigh >= 4.2f) {
+    if (pack_state->cellVoltageHigh >= pack_configuration->cellHardOverVoltage) {
         safety_status.bms_fault_data[cell_over_voltage] = 0xFF; 
         cell_is_ok = false; 
     } else {
@@ -56,7 +68,7 @@ bool safety_check_cell_under_voltage(void)
 {
     bool cell_is_ok = false; 
 
-    if (pack_state->cellVoltageLow <= 2.5f) {
+    if (pack_state->cellVoltageLow <= pack_configuration->cellHardUnderVoltage) {
         safety_status.bms_fault_data[cell_under_voltage] = 0xFF; 
         cell_is_ok =  false; 
     } else {
@@ -71,7 +83,7 @@ bool safety_check_cell_over_temperature(void)
 {
     bool temperature_is_ok = false; 
 
-    if (pack_state->tempBatteryHigh >= 60.0f) {
+    if (pack_state->tempBatteryHigh >= pack_configuration->allowedTempBattDischargingMax) {
         safety_status.bms_fault_data[cell_over_temperature] = 0xFF; 
         temperature_is_ok =  false;
     } else {
@@ -87,7 +99,7 @@ bool safety_check_bms_board_over_temperature(void)
     bool bms_temperature_is_ok = false; 
 
     // It can be bms master board or bms slave boards
-    if (pack_state->tempBMSHigh >= 60.0f) {
+    if (pack_state->tempBMSHigh >= pack_configuration->allowedTempBMSMax) {
         safety_status.bms_fault_data[bms_board_over_temperature] = 0xFF; 
         bms_temperature_is_ok = false; 
     } else {
@@ -103,8 +115,8 @@ bool safety_check_power_exceed_80kw(void)
     bool power_is_ok = false; 
 
     float load_power;
-    float maximum_allowed_power = 80 * 1000; 
-    load_power = pack_state->loCurrentLoadVoltage * pack_state->loCurrentLoadCurrent;
+    float maximum_allowed_power = 79 * 1000; 
+    load_power = pack_state->packVoltage * pack_state->loCurrentLoadCurrent;
     if (load_power >= maximum_allowed_power) {
         safety_status.bms_fault_data[power_exceed_80kw] = 0xFF; 
         power_is_ok =  false; 

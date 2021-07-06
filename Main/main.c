@@ -34,7 +34,7 @@
 
 #include "safety_check.h"
 #include "report_status.h"
-#include "state_of_charge.h"
+// #include "state_of_charge.h"
 #include "state_of_health.h"
 #include "current_sense.h"
 // This next define enables / disables the watchdog
@@ -50,7 +50,7 @@ void mainWatchDogInitAndStart(void);
 void mainWatchDogReset(void);
 void Error_Handler(void);
 
-int main(void) {			
+int main(void) {
   HAL_Init();
   SystemClock_Config();
 	modPowerStateInit(P_STAT_SET);																						// Enable power supply to keep operational
@@ -74,10 +74,10 @@ int main(void) {
 	modOperationalStateInit(&packState,generalConfig,generalStateOfCharge);		// Will keep track of and control operational state (eg. normal use / charging / balancing / power down)
 
   // SRE Code
-  safety_check_init(&packState); 
+  safety_check_init(&packState, generalConfig);
   report_status_init(&packState); 
   current_sense_init(&packState); 
-  state_of_charge_init(&packState); 
+  // state_of_charge_init(&packState); 
 
   while(true) {
 		modEffectTask();
@@ -91,11 +91,10 @@ int main(void) {
     safety_check_task(); 
     // state_of_charge_task(); 
     report_status_task();
-
-    state_of_charge_task(); 
-		
-		// if(modPowerElectronicsTask())																						// Handle power electronics task
-		// 	modStateOfChargeProcess();																						// If there is new data handle SoC estimation
+    // state_of_charge_task(); 
+	
+		if(modPowerElectronicsTask())																						// Handle power electronics task
+			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
   }
 }
 
