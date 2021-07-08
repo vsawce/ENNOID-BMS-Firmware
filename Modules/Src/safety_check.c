@@ -6,18 +6,23 @@
 
 #include <stdio.h>
 
-static safety_status_s safety_status; 
-
 static modPowerElectronicsPackStateTypedef *pack_state;
 static modConfigGeneralConfigStructTypedef *pack_configuration; 
 
-static bool safty_feature; 
+static safety_status_s safety_status; 
+
+static bool safty_enable; 
+
+static uint32_t last_status_ok_timestamp; 
 
 void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state, modConfigGeneralConfigStructTypedef *copy_pack_configuration) 
 {
     pack_state = copy_pack_state;
     pack_configuration = copy_pack_configuration;
-    pack_configuration->buzzerSignalSource = 1; 
+    safty_enable = true; 
+    pack_configuration->buzzerSignalSource = 1;
+    modEffectChangeState(STAT_LED_POWER,STAT_RESET);
+    last_status_ok_timestamp = HAL_GetTick();
 }
 
 void safety_check_task(void) 
@@ -27,25 +32,33 @@ void safety_check_task(void)
                                 & safety_check_power_exceed_80kw()); 
 
     if (pack_configuration->buzzerSignalSource) {
-        safty_feature = true;
+        safty_enable = true;
     } else {
-        safty_feature = false; 
+        safty_enable = false; 
         modEffectChangeState(STAT_LED_POWER,STAT_RESET);
     }
 
     if (safety_status.status_is_ok) {
         safety_status.bms_fault_data[0] = 0 & 0xFF; 
 
-        if (safty_feature) {
+        if (safty_enable) {
             modEffectChangeState(STAT_LED_POWER,STAT_RESET);
         }
+        last_status_ok_timestamp = HAL_GetTick(); 
 
     } else {
         safety_status.bms_fault_data[0] = 0xFF; 
+
+        static uint32_t fault_time_ms;
+
+        fault_time_ms = HAL_GetTick() - last_status_ok_timestamp;
         
-        if (safty_feature) {
+        // Check continous fault time here, currently set to five seconds and will trigger HVIL open
+        // It's a temp solution, eventually we need dig in actual data processing for temperature and voltage
+        if (safty_enable && fault_time_ms >= 5 * 1000) {
             modEffectChangeState(STAT_LED_POWER,STAT_SET);
         }
+
     }
 }
 
@@ -61,7 +74,7 @@ bool safety_check_cell_over_voltage(void)
         cell_is_ok = true; 
     }
 
-    return cell_is_ok; 
+    return cell_is_ok;
 }
 
 bool safety_check_cell_under_voltage(void)

@@ -318,8 +318,10 @@ void modOperationalStateTask(void) {
 				modOperationalStatePackStatehandle->powerDownDesired = true;
 			}
 		
-			modEffectChangeStateError(STAT_LED_DEBUG,STAT_ERROR,modOperationalStatePackStatehandle->faultState);										// Turn flash fast on debug and power LED
-			modEffectChangeStateError(STAT_LED_POWER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
+			modEffectChangeStateError(STAT_LED_DEBUG,STAT_ERROR,modOperationalStatePackStatehandle->faultState);	// Turn flash fast on debug and power LED
+			#if DISABLE_POWER_LED								
+				modEffectChangeStateError(STAT_LED_POWER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
+			#endif 
 			if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
 				modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);			// Turn flash fast on debug and power LED
 			modPowerElectronicsDisableAll();
@@ -338,8 +340,12 @@ void modOperationalStateTask(void) {
 				modOperationalStatePackStatehandle->powerDownDesired = true;
 			}
 		
-			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);									// Turn flash fast on debug and power LED
+
+			#if DISABLE_POWER_LED
 			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
+			#endif 
+			
 			if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
 					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
 			modPowerElectronicsDisableAll();
