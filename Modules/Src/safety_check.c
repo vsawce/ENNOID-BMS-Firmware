@@ -2,6 +2,7 @@
 #include "generalDefines.h"
 #include "modEffect.h"
 #include "driverHWStatus.h"
+#include "modConfig.h"
 
 #include "safety_check.h"
 
@@ -23,10 +24,33 @@ void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state, mod
     pack_state = copy_pack_state;
     pack_configuration = copy_pack_configuration;
     safty_enable = true; 
-    pack_configuration->buzzerSignalSource = 1;
     modEffectChangeState(STAT_LED_POWER, STAT_RESET);
     modEffectChangeState(STAT_BUZZER, STAT_RESET);
-    last_status_ok_timestamp = HAL_GetTick();
+
+    pack_configuration->buzzerSignalSource = 1;
+    pack_configuration->noOfCellsSeries = 72;
+    pack_configuration->cellMonitorICCount = 6;
+    pack_configuration->noOfCellsParallel = 9; 
+    pack_configuration->batteryCapacity = 27; 
+    pack_configuration->cellHardOverVoltage = 4.2;
+    pack_configuration->cellHardUnderVoltage = 2.0;
+    pack_configuration->cellLCSoftUnderVoltage = 2.5;
+    pack_configuration->noOfTempSensorPerModule = 5;
+    pack_configuration->noOfTempSensorPerExpansionBoard = 6;
+    pack_configuration->noOfExpansionBoard = 6;
+    pack_configuration->NTCBetaFactor[modConfigNoOfNTCTypes] = 4540;
+    pack_configuration->allowedTempBattChargingMax = 60;
+    pack_configuration->allowedTempBattDischargingMax = 60;
+    pack_configuration->allowedTempBMSMax = 60;
+    pack_configuration->maxAllowedCurrent = 300; 
+    pack_configuration->shuntLCFactor = -0.042; 
+
+    pack_state->SoC = 95; 
+
+    last_status_ok_timestamp = HAL_GetTick(); 
+
+    fault_time_ms = HAL_GetTick(); 
+
 }
 
 void safety_check_task(void) 
@@ -42,6 +66,7 @@ void safety_check_task(void)
         modEffectChangeState(STAT_LED_POWER, STAT_RESET);
     }
 
+    #if 0
     if (!safety_status.status_is_ok) {
         last_fault_timestamp = HAL_GetTick(); 
 
@@ -54,10 +79,11 @@ void safety_check_task(void)
     } else {
         safety_status.bms_fault_data[0] = 0 & 0xFF;
         modEffectChangeState(STAT_LED_POWER, STAT_RESET);
-        fault_time_ms = 0; 
+        fault_time_ms = HAL_GetTick(); 
     }
+    #endif
 
-    #if 0
+    #if 1
     if (safety_status.status_is_ok) {
         safety_status.bms_fault_data[0] = 0 & 0xFF;
 
