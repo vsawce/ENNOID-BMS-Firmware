@@ -1,6 +1,7 @@
 #include "driverHWStatus.h"
 #include "generalDefines.h"
 #include "modEffect.h"
+#include "driverHWStatus.h"
 
 #include "safety_check.h"
 
@@ -14,6 +15,8 @@ static safety_status_s safety_status;
 static bool safty_enable; 
 
 static uint32_t last_status_ok_timestamp; 
+static uint32_t last_fault_timestamp;
+static uint32_t fault_time_ms;
 
 void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state, modConfigGeneralConfigStructTypedef *copy_pack_configuration) 
 {
@@ -21,7 +24,8 @@ void safety_check_init(modPowerElectronicsPackStateTypedef *copy_pack_state, mod
     pack_configuration = copy_pack_configuration;
     safty_enable = true; 
     pack_configuration->buzzerSignalSource = 1;
-    modEffectChangeState(STAT_LED_POWER,STAT_RESET);
+    modEffectChangeState(STAT_LED_POWER, STAT_RESET);
+    modEffectChangeState(STAT_BUZZER, STAT_RESET);
     last_status_ok_timestamp = HAL_GetTick();
 }
 
@@ -35,20 +39,36 @@ void safety_check_task(void)
         safty_enable = true;
     } else {
         safty_enable = false; 
-        modEffectChangeState(STAT_LED_POWER,STAT_RESET);
+        modEffectChangeState(STAT_LED_POWER, STAT_RESET);
     }
 
+    if (!safety_status.status_is_ok) {
+        last_fault_timestamp = HAL_GetTick(); 
+
+        fault_time_ms = last_fault_timestamp - fault_time_ms;
+
+        if (safty_enable && fault_time_ms >= 5 * 1000) {
+            modEffectChangeState(STAT_LED_POWER, STAT_SET);
+            safety_status.bms_fault_data[0] = 0xFF; 
+        }
+    } else {
+        safety_status.bms_fault_data[0] = 0 & 0xFF;
+        modEffectChangeState(STAT_LED_POWER, STAT_RESET);
+        fault_time_ms = 0; 
+    }
+
+    #if 0
     if (safety_status.status_is_ok) {
-        safety_status.bms_fault_data[0] = 0 & 0xFF; 
+        safety_status.bms_fault_data[0] = 0 & 0xFF;
 
         if (safty_enable) {
-            modEffectChangeState(STAT_LED_POWER,STAT_RESET);
+            modEffectChangeState(STAT_LED_POWER, STAT_RESET);
         }
         last_status_ok_timestamp = HAL_GetTick(); 
 
     } else {
+        
         safety_status.bms_fault_data[0] = 0xFF; 
-
         static uint32_t fault_time_ms;
 
         fault_time_ms = HAL_GetTick() - last_status_ok_timestamp;
@@ -56,10 +76,11 @@ void safety_check_task(void)
         // Check continous fault time here, currently set to five seconds and will trigger HVIL open
         // It's a temp solution, eventually we need dig in actual data processing for temperature and voltage
         if (safty_enable && fault_time_ms >= 5 * 1000) {
-            modEffectChangeState(STAT_LED_POWER,STAT_SET);
+            modEffectChangeState(STAT_LED_POWER, STAT_SET);
         }
 
     }
+    #endif
 }
 
 bool safety_check_cell_over_voltage(void)

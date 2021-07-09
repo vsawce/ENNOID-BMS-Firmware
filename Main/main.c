@@ -87,14 +87,14 @@ int main(void) {
 		modCANTask();
 		mainWatchDogReset();
     
+    // state_of_charge_task(); 
+		if(modPowerElectronicsTask()) { // Handle power electronics task
+		    modStateOfChargeProcess();  // If there is new data handle SoC estimation
+    }
+
     // SRE Tasks
     safety_check_task(); 
-    // state_of_charge_task(); 
-    report_status_task();
-    // state_of_charge_task(); 
-	
-		if(modPowerElectronicsTask())																						// Handle power electronics task
-			modStateOfChargeProcess();																						// If there is new data handle SoC estimation
+    report_status_task();												
   }
 }
 
