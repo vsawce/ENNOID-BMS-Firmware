@@ -28,6 +28,7 @@ EV.8.4.2 Cell Voltage levels must remain inside the allowed minimum and maximum 
 
 EV.8.5.2 Temperatures must remain below the allowed maximum cell temperature limit stated in the cell data sheet or 60°C, whichever is lower. Measurement accuracy must be considered.
 
+<<<<<<< HEAD
 ## Compiling with ARM-GCC
 You can manipulate the makefile to choose which files you want included in the compilation.
 
@@ -46,21 +47,34 @@ You can manipulate the makefile to choose which files you want included in the c
 Ask Sean lol. Licensing = pain
 
 ## Other parts of this project
+=======
+## How to Compile the BMS firmware
+>>>>>>> b12558b20455689bef36a5de033991854563ba4a
 
-This is the firmware repository containing all firmware source files. There are three more repositories for this project:
+#### Ubuntu
+1. `sudo apt update` and `sudo apt upgrade`
+2. `sudo apt install make` and `sudo apt install gcc-arm-none-eabi`
+3. In SRE-BMS-Firmware folder, run make
 
-[ENNOID-BMS Hardware](https://github.com/EnnoidMe/ENNOID-BMS) The hardware sourcefiles.
+#### Windows
+1. Install WSL using the Ubuntu distro
+2. In the WSL terminal, `sudo apt update` and `sudo apt upgrade`
+3. `sudo apt install make` and `sudo apt install gcc-arm-none-eabi`
+4. In SRE-BMS-Firmware folder, run make
 
-[ENNOID-BMS Bootloader](https://github.com/EnnoidMe/DieBieMS-Bootloader) Same as DieBieMS bootloader. Can be flashed with the BMS Tool in the firmware tab or with an STlink-V2. 
+#### Mac
+Mac OS and cross-platform support is in progress
 
-[ENNOID-BMS Configuration tool](https://github.com/EnnoidMe/ENNOID-BMS-Tool) the tool to configure the ENNOID-BMS and upload the bootloader / update the main firmware.
+[Downlaod ENNOID-BMS GUI tool](https://github.com/EnnoidMe/ENNOID-BMS-Tool)
 
+## Memory Map
 
-When flashing the application the start address should be: <b>0x08000000</b>
+When flashing the application the start address should be: <b>0x08000000</b><br>
 When flashing the bootloader the start address should be: <b>0x08032000</b>
 
 The flash is formatted as follows (summary):
 
+<<<<<<< HEAD
 ((uint32_t)0x08000000) /* Base @ of Page 0, 2 Kbytes */  // Startup Code - Main application<br>
 ((uint32_t)0x08000800) /* Base @ of Page 1, 2 Kbytes */  // Page0 - EEPROM emulation<br>
 ((uint32_t)0x08001000) /* Base @ of Page 2, 2 Kbytes */  // Page1 - EEPROM emulation<br>
@@ -119,3 +133,11 @@ The flash is formatted as follows (summary):
 
 See "modFlash.h" and "modFlash.c" for more info.
 >>>>>>> d038dbbc4e26ca936f24081e4c52e7576d529389
+=======
+0x08000000 &nbsp; - Base @ of Page 0, 2 Kbytes &nbsp; &nbsp; &nbsp; // Startup Code - Main application<br>
+0x08000800 &nbsp; - Base @ of Page 1, 2 Kbytes &nbsp; &nbsp; &nbsp; // Page0 - EEPROM emulation<br>
+0x08001000 &nbsp; - Base @ of Page 2, 2 Kbytes &nbsp; &nbsp; &nbsp; // Page1 - EEPROM emulation<br>
+0x08001800 &nbsp; - Base @ of Page 3, 2 Kbytes &nbsp; &nbsp; &nbsp; // Remainder of the main application stars from here<br>
+0x08019000 &nbsp; - Base @ of Page 50, 2 Kbytes &nbsp; &nbsp;       // New firmware update base addres<br>
+0x08032000 &nbsp; - Base @ of Page 100, 2 Kbytes &nbsp;             // Bootloader<br>
+>>>>>>> b12558b20455689bef36a5de033991854563ba4a

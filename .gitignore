@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 History
 *.IntLib\
 *.SchDocPreview
@@ -30,3 +31,37 @@ History
 *.sct
 *.dbgconf
 *.vscode
+=======
+History
+*.IntLib\
+*.SchDocPreview
+*.PcbDocPreview
+*.tmp
+*.TMP
+*.zip
+*.rar
+*.o
+*.d
+*.crf
+*Preview
+*.Annotation
+*.LOG
+*viewstate
+*.htm
+*.PrjPCBStructure
+*.wmf
+*.uvoptx
+*.uvprojx
+*.dionn
+*.ini
+*.lst
+*.axf
+*.elf
+*.hex
+*.dep
+*.map
+*.lnp
+*.sct
+*.dbgconf
+*.vscode
+>>>>>>> b12558b20455689bef36a5de033991854563ba4a

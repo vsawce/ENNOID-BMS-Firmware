@@ -21,6 +21,8 @@
 #include "modPowerElectronics.h"
 #include "modTerminal.h"
 
+#include "current_sense.h"
+
 modPowerElectronicsPackStateTypedef *modPowerElectronicsPackStateHandle;
 modConfigGeneralConfigStructTypedef *modPowerElectronicsGeneralConfigHandle;
 uint32_t modPowerElectronicsMeasureIntervalLastTick;
@@ -166,7 +168,6 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	
 	// Sample the first pack voltage moment
 	driverSWISL28022GetBusVoltage(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->packVoltage,modPowerElectronicsGeneralConfigHandle->voltageLCOffset, modPowerElectronicsGeneralConfigHandle->voltageLCFactor);
-
 	
 	// Register terminal commands
 	modTerminalRegisterCommandCallBack("testbms","Test the cell connection between cell monitor and pack and pack vs cell measurement.","[error (V)] [bal drop (mV)]",modPowerElectronicsTerminalCellConnectionTest);
@@ -248,7 +249,6 @@ bool modPowerElectronicsTask(void) {
 		
 		// Check and respond to the measured current values
 		modPowerElectronicsSubTaskCurrentWatch();
-		
 		
 		// Check and respond to the measured temperature values
 		modPowerElectronicsCheckPackSOA();
@@ -1196,7 +1196,9 @@ void modPowerElectronicsSamplePackAndLCData(void) {
 	float tempPackVoltage;
 	
 	modPowerElectronicsSamplePackVoltage(&tempPackVoltage);
+
 	modPowerElectronicsPackStateHandle->packVoltage = tempPackVoltage;
+
 	modPowerElectronicsLCSenseSample();
 	
 	if(fabs(tempPackVoltage - modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage) < 0.2f*(modPowerElectronicsGeneralConfigHandle->noOfCellsSeries*modPowerElectronicsPackStateHandle->cellVoltageAverage)) {    // If the error is different than 20% continue normal operation. 
@@ -1257,6 +1259,7 @@ float modPowerElectronicsCalcPackCurrent(void){
 
 void modPowerElectronicsLCSenseSample(void) {
 		driverSWISL28022GetBusCurrent(ISL28022_MASTER_ADDRES,ISL28022_MASTER_BUS,&modPowerElectronicsPackStateHandle->loCurrentLoadCurrent,initCurrentOffset, modPowerElectronicsGeneralConfigHandle->shuntLCFactor);
+		// current_sense_read_5hz(initCurrentOffset, modPowerElectronicsGeneralConfigHandle->shuntLCFactor); 
 		driverHWADCGetLoadVoltage(&modPowerElectronicsPackStateHandle->loCurrentLoadVoltage, modPowerElectronicsGeneralConfigHandle->loadVoltageOffset, modPowerElectronicsGeneralConfigHandle->loadVoltageFactor);
 		#if (ENNOID_SS_LITE)
 			modPowerElectronicsPackStateHandle->loCurrentLoadVoltage = 0;
