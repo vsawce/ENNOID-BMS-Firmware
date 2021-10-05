@@ -163,15 +163,10 @@ void modOperationalStateTask(void) {
 			else{
 				modPowerElectronicsSetPreCharge(false);
 				modOperationalStatePreChargeTimeout = HAL_GetTick();
-<<<<<<< HEAD
-				if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
-					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);	
-=======
 				#if DISABLE_BUZZER
 					if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
 						modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
 				#endif	
->>>>>>> b12558b20455689bef36a5de033991854563ba4a
 			}
 			
 			if((modOperationalStatePackStatehandle->loCurrentLoadVoltage > modOperationalStatePackStatehandle->packVoltage*modOperationalStateGeneralConfigHandle->minimalPrechargePercentage) && (modOperationalStatePackStatehandle->disChargeLCAllowed || modOperationalStateForceOn)) {
@@ -219,8 +214,6 @@ void modOperationalStateTask(void) {
 			modEffectChangeState(STAT_BUZZER,STAT_RESET);
 			#endif
 			
-			modEffectChangeState(STAT_BUZZER,STAT_RESET);
-			
 			//Cooling/Heating
 			if(modOperationalStatePackStatehandle->coolingAllowed )
 				modPowerElectronicsSetCooling(true);
@@ -241,15 +234,10 @@ void modOperationalStateTask(void) {
 				modPowerElectronicsSetDisCharge(false);
 				modPowerElectronicsSetCharge(false);
 				modOperationalStatePackStatehandle->faultState = FAULT_CODE_DISCHARGE_RETRY;
-<<<<<<< HEAD
-				if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
-					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);	
-=======
 				#if DISABLE_BUZZER
 					if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
 						modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
 				#endif	
->>>>>>> b12558b20455689bef36a5de033991854563ba4a
 			}
 
 			
@@ -309,15 +297,10 @@ void modOperationalStateTask(void) {
 				modEffectChangeState(STAT_LED_POWER,STAT_RESET);												// Turn off power LED
 			#endif 
 			modEffectChangeState(STAT_LED_DEBUG,STAT_RESET);
-<<<<<<< HEAD
-			if(!modOperationalStateGeneralConfigHandle->buzzerSignalPersistant)
-				modEffectChangeState(STAT_BUZZER,STAT_RESET);
-=======
 			#if DISABLE_BUZZER
 				if(!modOperationalStateGeneralConfigHandle->buzzerSignalPersistant)
 				modEffectChangeState(STAT_BUZZER,STAT_RESET);
 			#endif
->>>>>>> b12558b20455689bef36a5de033991854563ba4a
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_POWEROFF,modOperationalStateDisplayData);
 		  if(modDelayTick1ms(&modOperationalStatePSPDisableDelay,modOperationalStateGeneralConfigHandle->powerDownDelay))	{					// Wait for the power down delay time to pass
@@ -345,12 +328,6 @@ void modOperationalStateTask(void) {
 				modOperationalStatePackStatehandle->powerDownDesired = true;
 			}
 		
-<<<<<<< HEAD
-			modEffectChangeStateError(STAT_LED_DEBUG,STAT_ERROR,modOperationalStatePackStatehandle->faultState);										// Turn flash fast on debug and power LED
-			modEffectChangeStateError(STAT_LED_POWER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
-			if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
-				modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);			// Turn flash fast on debug and power LED
-=======
 			modEffectChangeStateError(STAT_LED_DEBUG,STAT_ERROR,modOperationalStatePackStatehandle->faultState);	// Turn flash fast on debug and power LED
 			#if DISABLE_POWER_LED								
 				modEffectChangeStateError(STAT_LED_POWER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
@@ -360,7 +337,6 @@ void modOperationalStateTask(void) {
 			if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
 				modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);			// Turn flash fast on debug and power LED
 			#endif
->>>>>>> b12558b20455689bef36a5de033991854563ba4a
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
 			modOperationalStateDisplayData.FaultCode = modOperationalStatePackStatehandle->faultState;
@@ -377,12 +353,6 @@ void modOperationalStateTask(void) {
 				modOperationalStatePackStatehandle->powerDownDesired = true;
 			}
 		
-<<<<<<< HEAD
-			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
-			modEffectChangeState(STAT_LED_POWER,STAT_FLASH_FAST);										// Turn flash fast on debug and power LED
-			if(modOperationalStateGeneralConfigHandle->buzzerSignalSource)
-					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
-=======
 			modEffectChangeState(STAT_LED_DEBUG,STAT_FLASH_FAST);									// Turn flash fast on debug and power LED
 
 			#if DISABLE_POWER_LED
@@ -394,7 +364,6 @@ void modOperationalStateTask(void) {
 					modEffectChangeStateError(STAT_BUZZER,STAT_ERROR,modOperationalStatePackStatehandle->faultState);
 			#endif
 			
->>>>>>> b12558b20455689bef36a5de033991854563ba4a
 			modPowerElectronicsDisableAll();
 			modOperationalStateUpdateStates();
 			modDisplayShowInfo(DISP_MODE_ERROR_PRECHARGE,modOperationalStateDisplayData);

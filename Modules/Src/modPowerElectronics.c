@@ -116,6 +116,12 @@ void modPowerElectronicsInit(modPowerElectronicsPackStateTypedef *packState, mod
 	modPowerElectronicsPackStateHandle->tempBatteryHigh          = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryLow           = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBatteryAverage       = 0.0f;
+	modPowerElectronicsPackStateHandle->tempMAverage[0]		     = 0.0f;
+	modPowerElectronicsPackStateHandle->tempMAverage[1]		     = 0.0f;
+	modPowerElectronicsPackStateHandle->tempMAverage[2]		     = 0.0f;
+	modPowerElectronicsPackStateHandle->tempMAverage[3]		     = 0.0f;
+	modPowerElectronicsPackStateHandle->tempMAverage[4]		     = 0.0f;
+	modPowerElectronicsPackStateHandle->tempMAverage[5]		     = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSHigh              = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSLow               = 0.0f;
 	modPowerElectronicsPackStateHandle->tempBMSAverage           = 0.0f;
@@ -591,6 +597,8 @@ void modPowerElectronicsCalcTempStats(void) {
 	float   tempBatteryMin;
 	float   tempBatterySum = 0.0f;
 	uint8_t tempBatterySumCount = 0;
+	float	tempModuleBatterySum[6] = {0.0f};
+	uint8_t	tempModuleBatterySumCount[6] = {0};
 	
 	// BMS
 	float   tempBMSMax;
@@ -649,6 +657,9 @@ void modPowerElectronicsCalcTempStats(void) {
 				
 				tempBatterySum += modPowerElectronicsPackStateHandle->auxVoltagesIndividual[sensorPointer].auxVoltage;		
 				tempBatterySumCount++;
+
+				tempModuleBatterySum[sensorPointer] += modPowerElectronicsPackStateHandle->auxVoltagesIndividual[sensorPointer].auxVoltage;
+				tempModuleBatterySumCount[sensorPointer]++;
 			}
 		}
 	}
@@ -664,7 +675,10 @@ void modPowerElectronicsCalcTempStats(void) {
 					tempBatteryMin = modPowerElectronicsPackStateHandle->expVoltagesIndividual[sensorPointer].expVoltage;
 		
 			tempBatterySum += modPowerElectronicsPackStateHandle->expVoltagesIndividual[sensorPointer].expVoltage;
-			tempBatterySumCount++;		
+			tempBatterySumCount++;
+
+			tempModuleBatterySum[sensorPointer] += modPowerElectronicsPackStateHandle->auxVoltagesIndividual[sensorPointer].auxVoltage;
+			tempModuleBatterySumCount[sensorPointer]++;		
 		}
 	}
 }
@@ -678,7 +692,17 @@ void modPowerElectronicsCalcTempStats(void) {
 		modPowerElectronicsPackStateHandle->tempBatteryAverage = tempBatterySum/tempBatterySumCount;
 	else
 		modPowerElectronicsPackStateHandle->tempBatteryAverage = 0.0f;
-	
+
+	// Module temperatures
+
+	for (uint8_t module = 0; module < 6; module++) {
+		if(tempModuleBatterySumCount[module])
+			modPowerElectronicsPackStateHandle->tempMAverage[module] = tempModuleBatterySum[module]/tempModuleBatterySumCount[module];
+		else
+			modPowerElectronicsPackStateHandle->tempMAverage[module] = 0.0f;
+	}
+
+
 	// BMS temperatures
 	modPowerElectronicsPackStateHandle->tempBMSHigh        = tempBMSMax;
 	modPowerElectronicsPackStateHandle->tempBMSLow         = tempBMSMin;

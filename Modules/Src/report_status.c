@@ -39,6 +39,9 @@ void report_status_task(void)
         report_soc(); 
         report_cell_and_bms_average_temperature_celsius(); 
         report_cell_temperature_celsius();
+        report_m_temp_average_1_celsius();
+        report_m_temp_average_2_celsius();
+        report_m_temp_average_3_celsius();
         report_bms_board_temperature_celsius();
         report_load_power_w();    
     }
@@ -107,6 +110,36 @@ void report_cell_and_bms_average_temperature_celsius(void)
 
     header = dbc_encode_BMS_Temperature_Average(can_data, &temp_info);
     modCANTransmitStandardID(0x628, can_data, 8);
+}
+
+void report_m_temp_average_1_celsius(void)
+{
+    static dbc_BMS_M_Temp_Average_1_s temp_info;
+    temp_info.BMS_M1_Temp_Average = pack_state->tempMAverage[0]; 
+    temp_info.BMS_M2_Temp_Average = pack_state->tempMAverage[1]; 
+
+    header = dbc_encode_BMS_Load_Power(can_data, &temp_info);
+    modCANTransmitStandardID(0x62A, can_data, 8);
+}
+
+void report_m_temp_average_2_celsius(void)
+{
+    static dbc_BMS_M_Temp_Average_2_s temp_info;
+    temp_info.BMS_M3_Temp_Average = pack_state->tempMAverage[2]; 
+    temp_info.BMS_M4_Temp_Average = pack_state->tempMAverage[3]; 
+
+    header = dbc_encode_BMS_Load_Power(can_data, &temp_info);
+    modCANTransmitStandardID(0x62B, can_data, 8);
+}
+
+void report_m_temp_average_3_celsius(void)
+{
+    static dbc_BMS_M_Temp_Average_3_s temp_info;
+    temp_info.BMS_M5_Temp_Average = pack_state->tempMAverage[4]; 
+    temp_info.BMS_M6_Temp_Average = pack_state->tempMAverage[5]; 
+
+    header = dbc_encode_BMS_Load_Power(can_data, &temp_info);
+    modCANTransmitStandardID(0x62C, can_data, 8);
 }
 
 void report_cell_temperature_celsius(void)

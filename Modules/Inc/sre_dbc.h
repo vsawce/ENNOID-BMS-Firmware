@@ -45,8 +45,12 @@ static const dbc_message_header_t dbc_header_BMS_Cell_Voltage_Average           
 static const dbc_message_header_t dbc_header_BMS_Status_Soc                      = {     1575U, 8 };
 static const dbc_message_header_t dbc_header_BMS_Temperature_Average             = {     1576U, 8 };
 static const dbc_message_header_t dbc_header_BMS_Cell_Temperature                = {     1577U, 8 };
+static const dbc_message_header_t dbc_header_BMS_M_Temp_Average_1                = {     1578U, 8 };
+static const dbc_message_header_t dbc_header_BMS_M_Temp_Average_2                = {     1579U, 8 };
+static const dbc_message_header_t dbc_header_BMS_M_Temp_Average_3                = {     1580U, 8 };
 static const dbc_message_header_t dbc_header_BMS_Board_Temperature               = {     1584U, 8 };
 static const dbc_message_header_t dbc_header_BMS_Load_Power                      = {     1585U, 4 };
+
 
 /**
  * BMS_Status: Sent by 'BMS'
@@ -139,6 +143,27 @@ typedef struct {
   float BMS_Cell_Temperature_Low; // unit: DegreeC
 } dbc_BMS_Cell_Temperature_s;
 
+typedef struct {
+  dbc_mia_info_t mia_info;
+
+  float BMS_M1_Temp_Average; // unit: DegreeC
+  float BMS_M2_Temp_Average; // unit: DegreeC
+} dbc_BMS_M_Temp_Average_1_s;
+
+typedef struct {
+  dbc_mia_info_t mia_info;
+
+  float BMS_M3_Temp_Average; // unit: DegreeC
+  float BMS_M4_Temp_Average; // unit: DegreeC
+} dbc_BMS_M_Temp_Average_2_s;
+
+typedef struct {
+  dbc_mia_info_t mia_info;
+
+  float BMS_M5_Temp_Average; // unit: DegreeC
+  float BMS_M6_Temp_Average; // unit: DegreeC
+} dbc_BMS_M_Temp_Average_3_s;
+
 /**
  * BMS_Board_Temperature: Sent by 'BMS'
  *   - Accumulator Load Power
@@ -171,6 +196,9 @@ extern const uint32_t dbc_mia_threshold_BMS_Cell_Voltage_Average;
 extern const uint32_t dbc_mia_threshold_BMS_Status_Soc;
 extern const uint32_t dbc_mia_threshold_BMS_Temperature_Average;
 extern const uint32_t dbc_mia_threshold_BMS_Cell_Temperature;
+extern const uint32_t dbc_mia_threshold_BMS_M_Temp_Average_1;
+extern const uint32_t dbc_mia_threshold_BMS_M_Temp_Average_2;
+extern const uint32_t dbc_mia_threshold_BMS_M_Temp_Average_3;
 extern const uint32_t dbc_mia_threshold_BMS_Board_Temperature;
 extern const uint32_t dbc_mia_threshold_BMS_Load_Power;
 
@@ -186,6 +214,9 @@ extern const dbc_BMS_Cell_Voltage_Average_s dbc_mia_replacement_BMS_Cell_Voltage
 extern const dbc_BMS_Status_Soc_s       dbc_mia_replacement_BMS_Status_Soc;
 extern const dbc_BMS_Temperature_Average_s dbc_mia_replacement_BMS_Temperature_Average;
 extern const dbc_BMS_Cell_Temperature_s dbc_mia_replacement_BMS_Cell_Temperature;
+extern const dbc_BMS_M_Temp_Average_1_s dbc_mia_replacement_M_Temp_Average_1;
+extern const dbc_BMS_M_Temp_Average_2_s dbc_mia_replacement_M_Temp_Average_2;
+extern const dbc_BMS_M_Temp_Average_3_s dbc_mia_replacement_M_Temp_Average_3;
 extern const dbc_BMS_Board_Temperature_s dbc_mia_replacement_BMS_Board_Temperature;
 extern const dbc_BMS_Load_Power_s       dbc_mia_replacement_BMS_Load_Power;
 
@@ -457,6 +488,99 @@ static inline bool dbc_encode_and_send_BMS_Cell_Temperature(void *argument_for_d
   const dbc_message_header_t header = dbc_encode_BMS_Cell_Temperature(bytes, message);
   return dbc_send_can_message(argument_for_dbc_send_can_message, header.message_id, bytes, header.message_dlc);
 }
+
+static inline dbc_message_header_t dbc_encode_BMS_M_Temp_Average_1(uint8_t bytes[8], const dbc_BMS_M_Temp_Average_1_s *message) {
+  uint64_t raw = 0;
+  memset(bytes, 0, 8);
+
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100.0 -> 100.0]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_M1_Temp_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+
+  bytes[0] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B0
+  bytes[1] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B8
+  bytes[2] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B16
+  bytes[3] |= (((uint8_t)(raw >> 24) & 0xff)     ); // 8 bits at B24
+
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100.0 -> 100.0]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_M2_Temp_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+
+  bytes[4] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B32
+  bytes[5] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B40
+  bytes[6] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B48
+  bytes[7] |= (((uint8_t)(raw >> 24) & 0xff)     ); // 8 bits at B56
+
+  return dbc_header_BMS_M_Temp_Average_1;
+}
+
+/// @see dbc_encode_BMS_Cell_Temperature(); this is its variant to encode and call dbc_send_can_message() to send the message
+static inline bool dbc_encode_and_send_BMS_M_Temp_Average_1(void *argument_for_dbc_send_can_message, const dbc_BMS_M_Temp_Average_1_s *message) {
+  uint8_t bytes[8];
+  const dbc_message_header_t header = dbc_encode_BMS_M_Temp_Average_1(bytes, message);
+  return dbc_send_can_message(argument_for_dbc_send_can_message, header.message_id, bytes, header.message_dlc);
+}
+
+static inline dbc_message_header_t dbc_encode_BMS_M_Temp_Average_2(uint8_t bytes[8], const dbc_BMS_M_Temp_Average_2_s *message) {
+  uint64_t raw = 0;
+  memset(bytes, 0, 8);
+
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100.0 -> 100.0]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_M3_Temp_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+
+  bytes[0] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B0
+  bytes[1] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B8
+  bytes[2] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B16
+  bytes[3] |= (((uint8_t)(raw >> 24) & 0xff)     ); // 8 bits at B24
+
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100.0 -> 100.0]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_M4_Temp_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+
+  bytes[4] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B32
+  bytes[5] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B40
+  bytes[6] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B48
+  bytes[7] |= (((uint8_t)(raw >> 24) & 0xff)     ); // 8 bits at B56
+
+  return dbc_header_BMS_M_Temp_Average_2;
+}
+
+/// @see dbc_encode_BMS_Cell_Temperature(); this is its variant to encode and call dbc_send_can_message() to send the message
+static inline bool dbc_encode_and_send_BMS_M_Temp_Average_2(void *argument_for_dbc_send_can_message, const dbc_BMS_M_Temp_Average_2_s *message) {
+  uint8_t bytes[8];
+  const dbc_message_header_t header = dbc_encode_BMS_M_Temp_Average_2(bytes, message);
+  return dbc_send_can_message(argument_for_dbc_send_can_message, header.message_id, bytes, header.message_dlc);
+}
+
+static inline dbc_message_header_t dbc_encode_BMS_M_Temp_Average_3(uint8_t bytes[8], const dbc_BMS_M_Temp_Average_3_s *message) {
+  uint64_t raw = 0;
+  memset(bytes, 0, 8);
+
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100.0 -> 100.0]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_M5_Temp_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+
+  bytes[0] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B0
+  bytes[1] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B8
+  bytes[2] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B16
+  bytes[3] |= (((uint8_t)(raw >> 24) & 0xff)     ); // 8 bits at B24
+
+  // Encode to raw 32-bit SIGNED signal with scale=0.1 within range of [-100.0 -> 100.0]
+  raw = ((uint64_t)(((MAX_OF(MIN_OF(message->BMS_M6_Temp_Average,100.0f),-100.0f)) / 0.1f) + 0.5f)) & 0xffffffff;
+
+  bytes[4] |= (((uint8_t)(raw >>  0) & 0xff)     ); // 8 bits at B32
+  bytes[5] |= (((uint8_t)(raw >>  8) & 0xff)     ); // 8 bits at B40
+  bytes[6] |= (((uint8_t)(raw >> 16) & 0xff)     ); // 8 bits at B48
+  bytes[7] |= (((uint8_t)(raw >> 24) & 0xff)     ); // 8 bits at B56
+
+  return dbc_header_BMS_M_Temp_Average_3;
+}
+
+/// @see dbc_encode_BMS_Cell_Temperature(); this is its variant to encode and call dbc_send_can_message() to send the message
+static inline bool dbc_encode_and_send_BMS_M_Temp_Average_3(void *argument_for_dbc_send_can_message, const dbc_BMS_M_Temp_Average_3_s *message) {
+  uint8_t bytes[8];
+  const dbc_message_header_t header = dbc_encode_BMS_M_Temp_Average_3(bytes, message);
+  return dbc_send_can_message(argument_for_dbc_send_can_message, header.message_id, bytes, header.message_dlc);
+}
+
+
+
 
 /**
  * Encode to transmit BMS_Board_Temperature:

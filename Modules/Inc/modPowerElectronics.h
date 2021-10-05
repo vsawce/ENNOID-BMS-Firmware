@@ -100,6 +100,7 @@ typedef struct {
 	float    tempBatteryHigh;
 	float    tempBatteryLow;
 	float    tempBatteryAverage;
+	float	 tempMAverage[6];
 	float    tempBMSHigh;
 	float    tempBMSLow;
 	float    tempBMSAverage;

@@ -25,20 +25,12 @@ uint8_t driverSWADC128D818TotalNoOfExpansionBoard = 0;
 uint8_t driverSWADC128D818MaxNoOfTempSensorPerExpansionBoard = 0;
 
 uint32_t driverSWADC128StartupDelayLastTick;
-<<<<<<< HEAD
-//Dev board sequence 1->2->3->4->5->6->7->8
-//static const uint8_t ADC128Address[9] ={0x1D,0x1E,0x1F,0x2D,0x2E,0x2F,0x35,0x36,0x37};
-
-//Dev board sequence 1->3->4->5->6->7->8->2 (Broken #2, send to back)
-static const uint8_t ADC128Address[9] ={0x1D,0x1F,0x2D,0x2E,0x2F,0x35,0x36,0x37,0x1E};
-=======
 
 //Regular Sequence (1 2 3 4 5 6 7 8)
 //static const uint8_t ADC128Address[9] ={0x1D,0x1E,0x1F,0x2D,0x2E,0x2F,0x35,0x36,0x37};
 //Current Sequence (1 3 4 5 6 7 8 2)
 static const uint8_t ADC128Address[9] ={0x1D,0x1F,0x2D,0x2E,0x2F,0x35,0x36,0x37,0x1E};
 
->>>>>>> b12558b20455689bef36a5de033991854563ba4a
 
 void driverSWADC128D818Init(uint8_t noOfExpansionBoard, uint8_t noOfTempSensorPerExpansionBoard){
 	
